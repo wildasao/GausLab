@@ -2,7 +2,7 @@ import { cn } from "@/lib/cn";
 import { HTMLAttributes, ReactNode } from "react";
 import { Container } from "./Container";
 
-interface SectionProps extends HTMLAttributes<HTMLElement> {
+interface SectionProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
   eyebrow?: string;
   title?: ReactNode;
   description?: ReactNode;

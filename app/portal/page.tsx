@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Container } from "@/components/ui/Container";
 import { Logo } from "@/components/site/Logo";
 import { LoginForm } from "@/components/site/LoginForm";
@@ -41,7 +42,9 @@ export default function PortalPage() {
               </div>
             </div>
           </div>
-          <LoginForm />
+          <Suspense fallback={null}>
+            <LoginForm />
+          </Suspense>
         </div>
       </Container>
     </section>
