@@ -36,7 +36,7 @@ export function LoginForm() {
         return;
       }
       // Optional: seed demo data on first login (no-op if student rows already exist)
-      await supabase.rpc("seed_demo_data").catch(() => {});
+      try { await supabase.rpc("seed_demo_data"); } catch {}
       router.push(params.get("next") || "/portal/dashboard");
       router.refresh();
     } else {
@@ -55,7 +55,7 @@ export function LoginForm() {
         data: { session },
       } = await supabase.auth.getSession();
       if (session) {
-        await supabase.rpc("seed_demo_data").catch(() => {});
+        try { await supabase.rpc("seed_demo_data"); } catch {}
         router.push("/portal/dashboard");
         router.refresh();
       } else {
