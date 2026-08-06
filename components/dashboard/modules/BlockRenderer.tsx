@@ -8,6 +8,8 @@ import { FractionBar } from "./visuals/FractionBar";
 import { EquationBalance } from "./visuals/EquationBalance";
 import { PythagorasTriangle } from "./visuals/PythagorasTriangle";
 import { TimesTableGrid } from "./visuals/TimesTableGrid";
+import { PlaceValueBlocks } from "./visuals/PlaceValueBlocks";
+import { CoordinatePlane } from "./visuals/CoordinatePlane";
 
 export function BlockRenderer({
   block,
@@ -60,6 +62,14 @@ export function BlockRenderer({
         return <PythagorasTriangle a={p.a ?? 3} b={p.b ?? 4} />;
       }
       if (block.name === "times-table") return <TimesTableGrid />;
+      if (block.name === "place-value-blocks") {
+        const p = (block.props ?? {}) as { start?: number };
+        return <PlaceValueBlocks start={p.start ?? 342} />;
+      }
+      if (block.name === "coordinate-plane") {
+        const p = (block.props ?? {}) as { start?: [number, number] };
+        return <CoordinatePlane start={p.start ?? [3, 2]} />;
+      }
       return null;
   }
 }

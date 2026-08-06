@@ -4,7 +4,7 @@ import { use, useMemo, useState } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { getModule, MODULES } from "@/lib/modules";
+import { getModule, MODULES, PHASE_META } from "@/lib/modules";
 import { BlockRenderer, isQuestion } from "@/components/dashboard/modules/BlockRenderer";
 import {
   ChevronLeft,
@@ -16,6 +16,7 @@ import {
   ArrowLeft,
   Sparkles,
   RotateCcw,
+  Brain,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -168,18 +169,35 @@ export default function ModulePage({ params }: { params: Promise<{ slug: string 
           transition={{ duration: 0.25 }}
           className="space-y-4"
         >
-          <div className="flex items-baseline justify-between">
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
             <div>
-              <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                Lesson {lessonIdx + 1} of {totalLessons}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                  Lesson {lessonIdx + 1} of {totalLessons}
+                </div>
+                {lesson.phase && (
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ring-inset ${
+                      PHASE_META[lesson.phase].tone
+                    }`}
+                    title={PHASE_META[lesson.phase].body}
+                  >
+                    {PHASE_META[lesson.phase].label}
+                  </span>
+                )}
               </div>
               <h2 className="mt-1 font-display text-xl font-semibold text-navy-800 sm:text-2xl">
                 {lesson.title}
               </h2>
               <p className="mt-1 max-w-2xl text-sm text-slate-600">{lesson.intro}</p>
+              {lesson.phase && (
+                <p className="mt-2 max-w-2xl text-[11px] italic text-slate-500">
+                  {PHASE_META[lesson.phase].body}
+                </p>
+              )}
             </div>
             {lessonComplete && (
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+              <div className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
                 <CheckCircle2 className="h-3.5 w-3.5" /> Lesson complete
               </div>
             )}
@@ -214,6 +232,7 @@ export default function ModulePage({ params }: { params: Promise<{ slug: string 
             attempted={overall.attempted}
             nextModuleSlug={nextModule.slug}
             nextTitle={nextModule.title}
+            cognitiveTip={mod.cognitiveTip}
             reset={() => {
               setScores({});
               setLessonIdx(0);
@@ -240,6 +259,7 @@ function ModuleComplete({
   attempted,
   nextModuleSlug,
   nextTitle,
+  cognitiveTip,
   reset,
 }: {
   pct: number;
@@ -248,6 +268,7 @@ function ModuleComplete({
   attempted: number;
   nextModuleSlug: string;
   nextTitle: string;
+  cognitiveTip?: string;
   reset: () => void;
 }) {
   return (
@@ -255,6 +276,17 @@ function ModuleComplete({
       <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
         <Trophy className="h-3.5 w-3.5" /> {attempted === total ? "Module complete" : `${attempted}/${total} answered`} · {correct}/{total} correct ({pct}%)
       </div>
+      {cognitiveTip && (
+        <div
+          className="max-w-md rounded-2xl bg-fuchsia-50 px-3 py-2 text-[11px] text-fuchsia-900 ring-1 ring-inset ring-fuchsia-200"
+          title="Applied neuroscience tip"
+        >
+          <div className="mb-0.5 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-widest text-fuchsia-700">
+            <Brain className="h-3 w-3" /> Grow next
+          </div>
+          {cognitiveTip}
+        </div>
+      )}
       <button
         type="button"
         onClick={reset}
