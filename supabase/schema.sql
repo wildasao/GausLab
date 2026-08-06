@@ -240,3 +240,93 @@ end;
 $$;
 
 grant execute on function public.seed_demo_data() to authenticated;
+
+-- =====================================================================
+-- QUESTION BANK
+-- Reusable pool of NAPLAN-style questions authored by GausLab or imported.
+-- The interactive study modules (Y3/Y5/Y7/Y9/Advanced) also write
+-- attempt-level analytics here so we can build mastery over time.
+-- =====================================================================
+
+create table if not exists public.questions (
+  id             uuid primary key default gen_random_uuid(),
+  year           int check (year in (3,5,7,9)),
+  pathway        text not null default 'core' check (pathway in ('core','advanced')),
+  strand         text,                          -- 'Number & Algebra' | 'Measurement & Geometry' | 'Statistics & Probability'
+  topic          text,                          -- freeform topic label
+  difficulty     text not null default 'medium' check (difficulty in ('easy','medium','hard')),
+  kind           text not null check (kind in ('mcq','numeric')),
+  prompt         text not null,
+  -- MCQ fields
+  choices        text[],                        -- for kind = 'mcq'
+  answer_index   int,                           -- for kind = 'mcq'
+  -- Numeric fields
+  answer_numeric numeric,                       -- for kind = 'numeric'
+  unit           text,
+  tolerance      numeric not null default 0,
+  -- Teaching
+  explanation    text,
+  hint           text,
+  visual_name    text,
+  visual_props   jsonb,
+  -- Provenance
+  source         text not null default 'gauslab',
+  tags           text[] default '{}',
+  created_at     timestamptz not null default now()
+);
+
+create index if not exists questions_year_strand_idx on public.questions(year, strand);
+create index if not exists questions_tags_idx        on public.questions using gin (tags);
+
+alter table public.questions enable row level security;
+
+drop policy if exists "questions read all"       on public.questions;
+create policy "questions read all" on public.questions
+  for select to anon, authenticated using (true);
+
+-- Per-attempt analytics (one row per answer)
+create table if not exists public.question_attempts (
+  id             uuid primary key default gen_random_uuid(),
+  student_id     uuid references public.students(id) on delete cascade,
+  question_id    uuid references public.questions(id) on delete set null,
+  -- Fallback when the module's questions are still in code (not yet in DB)
+  module_slug    text,
+  lesson_id      text,
+  block_index    int,
+  correct        boolean not null,
+  answer_given   text,
+  duration_ms    int,
+  attempted_at   timestamptz not null default now()
+);
+
+create index if not exists attempts_student_idx on public.question_attempts(student_id, attempted_at desc);
+
+alter table public.question_attempts enable row level security;
+
+drop policy if exists "attempts insert own" on public.question_attempts;
+drop policy if exists "attempts read own"   on public.question_attempts;
+
+create policy "attempts insert own" on public.question_attempts
+  for insert to authenticated
+  with check (
+    student_id is null OR
+    student_id in (select id from public.students where parent_id = auth.uid())
+  );
+
+create policy "attempts read own" on public.question_attempts
+  for select to authenticated
+  using (
+    student_id is null OR
+    student_id in (select id from public.students where parent_id = auth.uid())
+  );
+
+-- Seed a starter question bank so /questions has content out of the box
+insert into public.questions
+  (year, strand, topic, difficulty, kind, prompt, choices, answer_index, answer_numeric, unit, explanation, hint, visual_name, visual_props, source, tags)
+values
+  (3, 'Number & Algebra', 'Multiplication', 'easy',   'mcq',     'A box holds 8 crayons. How many crayons in 3 boxes?', array['16','20','24','28'], 2, null, null, '3 groups of 8 → 3 × 8 = 24.', 'Try 3 rows of 8 in the array.',                'multiplication-array', '{"startRows":3,"startCols":8,"startTheme":"cookies"}'::jsonb, 'gauslab', array['multiplication','arrays']),
+  (3, 'Number & Algebra', 'Place value',    'medium', 'mcq',     'What is the value of the digit 7 in 471?',           array['7','70','700','7000'],   1, null, null, '7 is in the tens place → 70.',            'Look at where the 7 sits.',                    'place-value-blocks',   '{"start":471}'::jsonb,                                       'gauslab', array['place-value']),
+  (5, 'Number & Algebra', 'Fractions',      'medium', 'numeric', 'Complete the equivalent fraction: 2/5 = ?/15',        null,                            null, 6, null, '5 × 3 = 15, so 2 × 3 = 6 → 2/5 = 6/15.',   'What do you multiply 5 by to get 15?',         null,                    null,                                                          'gauslab', array['fractions','equivalence']),
+  (7, 'Number & Algebra', 'Linear equations','medium','numeric', 'Solve for x: 5x + 2 = 32',                            null,                            null, 6, null, '5x = 30 → x = 6.',                         'Subtract 2 first, then divide by 5.',          null,                    null,                                                          'gauslab', array['algebra','equations']),
+  (9, 'Measurement & Geometry','Pythagoras','medium','numeric', 'Legs are 5 and 12. Find the hypotenuse.',              null,                            null, 13, 'cm', '5² + 12² = 169 → √169 = 13.',              'Square each leg, add them, then square-root.', 'pythagoras',            '{"a":5,"b":12}'::jsonb,                                       'gauslab', array['pythagoras'])
+on conflict do nothing;

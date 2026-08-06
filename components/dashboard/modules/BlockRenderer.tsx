@@ -35,6 +35,7 @@ export function BlockRenderer({
           answerIndex={block.answerIndex}
           explanation={block.explanation}
           hint={block.hint}
+          visual={block.visual}
           onAnswer={onAnswer}
         />
       );
@@ -47,6 +48,7 @@ export function BlockRenderer({
           tolerance={block.tolerance}
           explanation={block.explanation}
           hint={block.hint}
+          visual={block.visual}
           onAnswer={onAnswer}
         />
       );

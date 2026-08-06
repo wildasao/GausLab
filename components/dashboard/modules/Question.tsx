@@ -4,6 +4,8 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, XCircle, RotateCcw, HelpCircle, Sparkles } from "lucide-react";
 import { cn } from "@/lib/cn";
+import type { QuestionVisual as QV } from "@/lib/modules";
+import { QuestionVisual } from "./QuestionVisual";
 
 type State = "idle" | "correct" | "incorrect";
 
@@ -13,6 +15,7 @@ export function McqQuestion({
   answerIndex,
   explanation,
   hint,
+  visual,
   onAnswer,
 }: {
   prompt: string;
@@ -20,6 +23,7 @@ export function McqQuestion({
   answerIndex: number;
   explanation: string;
   hint?: string;
+  visual?: QV;
   onAnswer?: (correct: boolean) => void;
 }) {
   const [selected, setSelected] = useState<number | null>(null);
@@ -50,6 +54,7 @@ export function McqQuestion({
       onSubmit={submit}
       canSubmit={selected !== null}
       explanation={explanation}
+      visual={visual}
     >
       <ul className="mt-4 grid gap-2 sm:grid-cols-2">
         {choices.map((c, i) => {
@@ -109,6 +114,7 @@ export function NumericQuestion({
   tolerance = 0,
   explanation,
   hint,
+  visual,
   onAnswer,
 }: {
   prompt: string;
@@ -117,6 +123,7 @@ export function NumericQuestion({
   tolerance?: number;
   explanation: string;
   hint?: string;
+  visual?: QV;
   onAnswer?: (correct: boolean) => void;
 }) {
   const [value, setValue] = useState("");
@@ -151,6 +158,7 @@ export function NumericQuestion({
       onSubmit={submit}
       canSubmit={value.trim() !== ""}
       explanation={explanation}
+      visual={visual}
     >
       <div className="mt-4 flex items-center gap-3">
         <input
@@ -187,6 +195,7 @@ function QuestionShell({
   onSubmit,
   canSubmit,
   explanation,
+  visual,
 }: {
   prompt: string;
   state: State;
@@ -198,9 +207,12 @@ function QuestionShell({
   onSubmit: () => void;
   canSubmit: boolean;
   explanation: string;
+  visual?: QV;
 }) {
   return (
     <section className="rounded-3xl bg-white p-6 shadow-soft ring-1 ring-navy-100">
+      {visual && <QuestionVisual visual={visual} />}
+
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="text-[11px] font-semibold uppercase tracking-widest text-orange-600">

@@ -6,6 +6,8 @@ import { notFound } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { getModule, MODULES, PHASE_META } from "@/lib/modules";
 import { BlockRenderer, isQuestion } from "@/components/dashboard/modules/BlockRenderer";
+import { recordAttempt } from "@/lib/attempts";
+import { useDashboard } from "@/lib/dashboard-context";
 import {
   ChevronLeft,
   ChevronRight,
@@ -22,12 +24,15 @@ import { cn } from "@/lib/cn";
 
 export default function ModulePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
-  const mod = getModule(slug);
-  if (!mod) return notFound();
 
+  // Hooks must run in a stable order — declare them all before any early return.
+  const { activeStudent } = useDashboard();
   const [lessonIdx, setLessonIdx] = useState(0);
   // scores[lessonIdx][blockIdx] = "correct" | "incorrect"
   const [scores, setScores] = useState<Record<number, Record<number, "correct" | "incorrect">>>({});
+
+  const mod = getModule(slug);
+  if (!mod) return notFound();
 
   const lesson = mod.lessons[lessonIdx];
   const totalLessons = mod.lessons.length;
@@ -55,6 +60,9 @@ export default function ModulePage({ params }: { params: Promise<{ slug: string 
     return MODULES[(currentYearIdx + 1) % MODULES.length];
   }, [mod.slug]);
 
+  const modSlug = mod.slug;
+  const lessonId = lesson.id;
+  const studentId = activeStudent?.id;
   function recordAnswer(blockIdx: number, correct: boolean) {
     setScores((s) => ({
       ...s,
@@ -63,6 +71,14 @@ export default function ModulePage({ params }: { params: Promise<{ slug: string 
         [blockIdx]: correct ? "correct" : "incorrect",
       },
     }));
+    // Fire-and-forget: send to Supabase for progress analytics
+    void recordAttempt({
+      studentId,
+      moduleSlug: modSlug,
+      lessonId,
+      blockIndex: blockIdx,
+      correct,
+    });
   }
 
   const lessonQuestions = lesson.blocks.filter(isQuestion).length;

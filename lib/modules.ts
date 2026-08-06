@@ -3,6 +3,20 @@ export type Pathway = Year | "Advanced";
 
 export type Choice = { text: string; correct?: boolean };
 
+/**
+ * Small interactive visual pinned to a question — e.g. the crayons-in-boxes
+ * array a student can manipulate to verify their thinking before answering.
+ */
+export type QuestionVisual = {
+  name:
+    | "multiplication-array"
+    | "fraction-bar"
+    | "pythagoras"
+    | "coordinate-plane"
+    | "place-value-blocks";
+  props?: Record<string, unknown>;
+};
+
 export type Block =
   | { kind: "theory"; title?: string; body: string }
   | { kind: "tip"; body: string }
@@ -14,6 +28,7 @@ export type Block =
       answerIndex: number;
       explanation: string;
       hint?: string;
+      visual?: QuestionVisual;
     }
   | {
       kind: "numeric";
@@ -23,6 +38,7 @@ export type Block =
       tolerance?: number;
       explanation: string;
       hint?: string;
+      visual?: QuestionVisual;
     }
   | {
       kind: "visual";
@@ -140,15 +156,24 @@ export const MODULES: Module[] = [
             choices: ["10", "20", "24", "28"],
             answerIndex: 2,
             explanation: "6 groups of 4 → 6 × 4 = 24. You can also think 4+4+4+4+4+4 = 24.",
-            hint: "Add 4 six times, or use skip counting: 4, 8, 12, 16, 20, 24.",
+            hint: "Try changing the visual to 6 rows of 4 stars — then count.",
+            visual: {
+              name: "multiplication-array",
+              props: { startRows: 6, startCols: 4, startTheme: "stars" },
+            },
           },
           {
             kind: "numeric",
-            prompt: "A box holds 8 crayons. How many crayons are in 3 boxes?",
+            prompt:
+              "A box holds 8 crayons. How many crayons are in 3 boxes? Use the array above — 3 rows (boxes) of 8 (crayons per box). Change the rows and columns and see it live.",
             answer: 24,
             unit: "crayons",
-            explanation: "3 groups of 8 → 3 × 8 = 24.",
-            hint: "Try skip counting by 8: 8, 16, 24.",
+            explanation: "3 groups of 8 → 3 × 8 = 24. Each row in the visual = one box.",
+            hint: "Set the visual to 3 rows × 8 columns, then count the cookies.",
+            visual: {
+              name: "multiplication-array",
+              props: { startRows: 3, startCols: 8, startTheme: "cookies" },
+            },
           },
         ],
       },
@@ -207,13 +232,22 @@ export const MODULES: Module[] = [
             choices: ["10", "18", "21", "24"],
             answerIndex: 2,
             explanation: "7 nights × 3 pages = 21 pages. Skip count by 3: 3, 6, 9, 12, 15, 18, 21.",
-            hint: "Multiply the number of nights by pages per night.",
+            hint: "The visual shows 7 rows (nights) of 3 pages. Count them all.",
+            visual: {
+              name: "multiplication-array",
+              props: { startRows: 7, startCols: 3, startTheme: "hearts" },
+            },
           },
           {
             kind: "numeric",
             prompt: "A pack of stickers has 8 stickers. How many stickers are in 6 packs?",
             answer: 48,
             explanation: "6 × 8 = 48. Break it down: 5 × 8 = 40, then add one more 8 → 48.",
+            hint: "Build 6 rows of 8 in the visual, then count.",
+            visual: {
+              name: "multiplication-array",
+              props: { startRows: 6, startCols: 8, startTheme: "apples" },
+            },
           },
         ],
       },
@@ -413,7 +447,11 @@ export const MODULES: Module[] = [
             answerIndex: 2,
             explanation:
               "The whole pizza is 8/8. Ben eats 3/8. What's left = 8/8 − 3/8 = 5/8.",
-            hint: "Start with the whole (8/8) and subtract what was eaten.",
+            hint: "Set the visual to show 8 pieces with 3 shaded (what Ben ate). The rest is what's left.",
+            visual: {
+              name: "fraction-bar",
+              props: { start: [3, 8] },
+            },
           },
           {
             kind: "numeric",
@@ -701,7 +739,11 @@ export const MODULES: Module[] = [
             unit: "cm",
             explanation:
               "5² + 12² = 25 + 144 = 169 → c = √169 = 13 cm. (Another famous Pythagorean triple!)",
-            hint: "Square each leg, add them, then take the square root.",
+            hint: "Drag the sliders to a = 5, b = 12 and watch the hypotenuse update.",
+            visual: {
+              name: "pythagoras",
+              props: { a: 5, b: 12 },
+            },
           },
           {
             kind: "mcq",
@@ -832,13 +874,22 @@ export const MODULES: Module[] = [
             choices: ["7", "70", "700", "7000"],
             answerIndex: 1,
             explanation: "7 is in the tens place, so its value is 7 × 10 = 70.",
-            hint: "Look at where the 7 sits: hundreds, tens or ones?",
+            hint: "Use the blocks — build 471 and see which pile the 7 falls into.",
+            visual: {
+              name: "place-value-blocks",
+              props: { start: 471 },
+            },
           },
           {
             kind: "numeric",
             prompt: "Write 500 + 60 + 8 as a single number.",
             answer: 568,
             explanation: "500 + 60 + 8 = 568.",
+            hint: "Build 5 hundreds, 6 tens, 8 ones. Read the number.",
+            visual: {
+              name: "place-value-blocks",
+              props: { start: 568 },
+            },
           },
         ],
       },
