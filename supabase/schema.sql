@@ -320,6 +320,40 @@ create policy "attempts read own" on public.question_attempts
     student_id in (select id from public.students where parent_id = auth.uid())
   );
 
+-- STUDENT-CREATED PROBLEMS (from module labs)
+-- Turns learners into authors — they design their own maths problems.
+create table if not exists public.student_problems (
+  id             uuid primary key default gen_random_uuid(),
+  student_id     uuid references public.students(id) on delete cascade,
+  module_slug    text,
+  kind           text not null check (kind in ('multiplication','fraction','pythagoras','place-value')),
+  config         jsonb not null,           -- e.g. {"rows":3,"cols":8,"theme":"cookies"}
+  story          text,                      -- the story the student invented
+  answer         text,                      -- their computed answer
+  favorite       boolean not null default false,
+  created_at     timestamptz not null default now()
+);
+
+create index if not exists student_problems_student_idx on public.student_problems(student_id, created_at desc);
+
+alter table public.student_problems enable row level security;
+
+drop policy if exists "student_problems own read"   on public.student_problems;
+drop policy if exists "student_problems own write"  on public.student_problems;
+drop policy if exists "student_problems own delete" on public.student_problems;
+
+create policy "student_problems own read" on public.student_problems
+  for select to authenticated
+  using (student_id in (select id from public.students where parent_id = auth.uid()));
+
+create policy "student_problems own write" on public.student_problems
+  for insert to authenticated
+  with check (student_id in (select id from public.students where parent_id = auth.uid()));
+
+create policy "student_problems own delete" on public.student_problems
+  for delete to authenticated
+  using (student_id in (select id from public.students where parent_id = auth.uid()));
+
 -- Seed a starter question bank so /questions has content out of the box
 insert into public.questions
   (year, strand, topic, difficulty, kind, prompt, choices, answer_index, answer_numeric, unit, explanation, hint, visual_name, visual_props, source, tags)

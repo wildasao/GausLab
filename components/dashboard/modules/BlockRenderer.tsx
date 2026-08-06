@@ -12,6 +12,7 @@ import { PlaceValueBlocks } from "./visuals/PlaceValueBlocks";
 import { CoordinatePlane } from "./visuals/CoordinatePlane";
 import { MultiplicationArray } from "./visuals/MultiplicationArray";
 import { TimesTableRace } from "./games/TimesTableRace";
+import { ProblemLab } from "./labs/ProblemLab";
 
 export function BlockRenderer({
   block,
@@ -95,6 +96,8 @@ export function BlockRenderer({
         return <TimesTableRace durationSeconds={p.durationSeconds ?? 60} />;
       }
       return null;
+    case "lab":
+      return <ProblemLab name={block.name} />;
   }
 }
 

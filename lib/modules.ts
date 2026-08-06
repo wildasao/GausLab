@@ -57,6 +57,11 @@ export type Block =
       kind: "game";
       name: "times-table-race";
       props?: Record<string, unknown>;
+    }
+  | {
+      kind: "lab";
+      name: "multiplication" | "fraction" | "pythagoras" | "place-value";
+      props?: Record<string, unknown>;
     };
 
 /**
@@ -272,6 +277,22 @@ export const MODULES: Module[] = [
           },
         ],
       },
+      {
+        id: "l5",
+        title: "Your turn — invent a multiplication problem",
+        intro:
+          "Now you're the teacher. Design a problem, write the story and save it to your collection.",
+        phase: "applied",
+        blocks: [
+          {
+            kind: "theory",
+            title: "Why creating beats copying",
+            body:
+              "When you *invent* a problem, your brain builds a much deeper understanding than when you solve someone else's. Try telling the story to a family member — teaching is one of the most powerful ways to learn.",
+          },
+          { kind: "lab", name: "multiplication" },
+        ],
+      },
     ],
   },
 
@@ -461,6 +482,21 @@ export const MODULES: Module[] = [
               "They're equivalent! 2/3 × (2/2) = 4/6, so they represent the same amount. Answer: 0.",
             hint: "Try multiplying 2/3 by 2/2 and see what you get.",
           },
+        ],
+      },
+      {
+        id: "l5",
+        title: "Your turn — invent a fraction problem",
+        intro:
+          "You've explored fractions. Now design your own. Set the numerator and denominator, write a story, save it.",
+        phase: "applied",
+        blocks: [
+          {
+            kind: "theory",
+            body:
+              "**Tip for great story problems:** think of something you'd actually split — a pizza, a chocolate bar, a class of kids, minutes of screen time. Concrete stories make abstract fractions memorable.",
+          },
+          { kind: "lab", name: "fraction" },
         ],
       },
     ],
@@ -828,6 +864,21 @@ export const MODULES: Module[] = [
           },
         ],
       },
+      {
+        id: "l5",
+        title: "Your turn — invent a Pythagoras problem",
+        intro:
+          "Pick two legs. See the hypotenuse. Write a real-world story — a ladder, a diagonal path, a TV screen — and save it.",
+        phase: "applied",
+        blocks: [
+          {
+            kind: "theory",
+            body:
+              "**Design tip:** the more real your story, the more useful the maths. Look around the room for right angles — walls & floors, screens, book edges — anywhere you spot one, Pythagoras applies.",
+          },
+          { kind: "lab", name: "pythagoras" },
+        ],
+      },
     ],
   },
 
@@ -944,6 +995,21 @@ export const MODULES: Module[] = [
             explanation: "Tens digit is 4 (less than 5), so round down: 543 → 500.",
             hint: "Look at the tens digit. Is it under 5?",
           },
+        ],
+      },
+      {
+        id: "l4",
+        title: "Your turn — design a place-value problem",
+        intro:
+          "Build any number with the blocks. Ask a good question about one of its digits. Save it.",
+        phase: "applied",
+        blocks: [
+          {
+            kind: "theory",
+            body:
+              "**Prompt starters:** *What is the value of the digit ___ in ___?* *Which digit is worth 40?* *Write the number in expanded form.* Try one of these — or invent your own.",
+          },
+          { kind: "lab", name: "place-value" },
         ],
       },
     ],

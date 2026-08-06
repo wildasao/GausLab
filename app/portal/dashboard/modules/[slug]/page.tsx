@@ -8,6 +8,7 @@ import { getModule, MODULES, PHASE_META } from "@/lib/modules";
 import { BlockRenderer, isQuestion } from "@/components/dashboard/modules/BlockRenderer";
 import { recordAttempt } from "@/lib/attempts";
 import { useDashboard } from "@/lib/dashboard-context";
+import { ModuleProvider } from "@/components/dashboard/modules/labs/ModuleContext";
 import {
   ChevronLeft,
   ChevronRight,
@@ -86,7 +87,7 @@ export default function ModulePage({ params }: { params: Promise<{ slug: string 
   const lessonComplete = lessonQuestions > 0 && lessonAnswered >= lessonQuestions;
 
   return (
-    <>
+    <ModuleProvider slug={mod.slug}>
       {/* Back link */}
       <div>
         <Link
@@ -264,7 +265,7 @@ export default function ModulePage({ params }: { params: Promise<{ slug: string 
           </button>
         )}
       </section>
-    </>
+    </ModuleProvider>
   );
 }
 
