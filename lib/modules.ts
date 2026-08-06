@@ -33,7 +33,13 @@ export type Block =
         | "times-table"
         | "place-value-blocks"
         | "coordinate-plane"
-        | "number-line";
+        | "number-line"
+        | "multiplication-array";
+      props?: Record<string, unknown>;
+    }
+  | {
+      kind: "game";
+      name: "times-table-race";
       props?: Record<string, unknown>;
     };
 
@@ -76,10 +82,10 @@ export const MODULES: Module[] = [
   {
     slug: "y3-times-tables-mastery",
     title: "Times Tables Mastery",
-    subtitle: "Build fast, confident recall of the 2×–10× times tables.",
+    subtitle: "Build fast, confident recall of the 2×–10× times tables — and race the clock.",
     year: 3,
     strand: "Number & Algebra",
-    minutes: 35,
+    minutes: 45,
     color: "from-sky-500 to-sky-700",
     overview:
       "Multiplication is repeated addition — once your child sees the patterns, the tables click. This module uses arrays, skip counting and quick-recall practice to build automaticity for Year 3 NAPLAN.",
@@ -104,7 +110,17 @@ export const MODULES: Module[] = [
             kind: "theory",
             title: "Equal groups",
             body:
-              "When we multiply, we count equal groups of the same size. **4 × 3** means \"4 groups of 3\". We could add: 3 + 3 + 3 + 3 = 12. Or use an array: 4 rows of 3 dots = 12 dots.",
+              "When we multiply, we count equal groups of the same size. **4 × 3** means \"4 groups of 3\". We could add: 3 + 3 + 3 + 3 = 12. Or use an **array** — a rectangle split into rows and columns.",
+          },
+          {
+            kind: "visual",
+            name: "multiplication-array",
+            props: { startRows: 3, startCols: 2, startTheme: "apples" },
+          },
+          {
+            kind: "tip",
+            body:
+              "Try changing the theme (apples, stars, hearts, cookies). Then use *Highlight rows* and *Highlight columns* — notice how 3 rows of 4 is the SAME number as 4 rows of 3. That's the commutative rule.",
           },
           { kind: "visual", name: "times-table" },
           {
@@ -198,6 +214,27 @@ export const MODULES: Module[] = [
             prompt: "A pack of stickers has 8 stickers. How many stickers are in 6 packs?",
             answer: 48,
             explanation: "6 × 8 = 48. Break it down: 5 × 8 = 40, then add one more 8 → 48.",
+          },
+        ],
+      },
+      {
+        id: "l4",
+        title: "Race the clock — mini-game",
+        intro:
+          "You've learned the ideas — now train recall speed. Automaticity is what lets your child solve NAPLAN questions in seconds.",
+        phase: "applied",
+        blocks: [
+          {
+            kind: "theory",
+            title: "Why speed matters",
+            body:
+              "NAPLAN gives you around 45 seconds per question. If a child spends 30 seconds recalling 7 × 8, they've got 15 seconds to actually solve the problem. **Automatic recall** = brain power freed for reasoning.\n\nPlay this game a few times a week — it's how athletes train reflexes, and it's how the brain builds durable multiplication memory.",
+          },
+          { kind: "game", name: "times-table-race", props: { durationSeconds: 60 } },
+          {
+            kind: "tip",
+            body:
+              "Small brain, big principle: your child grows more from **60 seconds of hard recall** than from 10 minutes of copying tables. That's retrieval practice — one of the most-studied learning techniques in cognitive science.",
           },
         ],
       },

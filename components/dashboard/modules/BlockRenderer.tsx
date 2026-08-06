@@ -10,6 +10,8 @@ import { PythagorasTriangle } from "./visuals/PythagorasTriangle";
 import { TimesTableGrid } from "./visuals/TimesTableGrid";
 import { PlaceValueBlocks } from "./visuals/PlaceValueBlocks";
 import { CoordinatePlane } from "./visuals/CoordinatePlane";
+import { MultiplicationArray } from "./visuals/MultiplicationArray";
+import { TimesTableRace } from "./games/TimesTableRace";
 
 export function BlockRenderer({
   block,
@@ -69,6 +71,26 @@ export function BlockRenderer({
       if (block.name === "coordinate-plane") {
         const p = (block.props ?? {}) as { start?: [number, number] };
         return <CoordinatePlane start={p.start ?? [3, 2]} />;
+      }
+      if (block.name === "multiplication-array") {
+        const p = (block.props ?? {}) as {
+          startRows?: number;
+          startCols?: number;
+          startTheme?: "apples" | "stars" | "hearts" | "cookies";
+        };
+        return (
+          <MultiplicationArray
+            startRows={p.startRows ?? 3}
+            startCols={p.startCols ?? 2}
+            startTheme={p.startTheme ?? "apples"}
+          />
+        );
+      }
+      return null;
+    case "game":
+      if (block.name === "times-table-race") {
+        const p = (block.props ?? {}) as { durationSeconds?: number };
+        return <TimesTableRace durationSeconds={p.durationSeconds ?? 60} />;
       }
       return null;
   }
