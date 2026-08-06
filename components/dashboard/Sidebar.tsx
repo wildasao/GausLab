@@ -15,6 +15,7 @@ import {
   Settings,
   LifeBuoy,
   LogOut,
+  GraduationCap,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -24,6 +25,7 @@ const primary = [
   { label: "Homework", href: "/portal/dashboard/homework", icon: ClipboardList, badge: 3 },
   { label: "Lessons", href: "/portal/dashboard/lessons", icon: CalendarDays },
   { label: "Messages", href: "/portal/dashboard/messages", icon: MessageSquare, badge: 1 },
+  { label: "Modules", href: "/portal/dashboard/modules", icon: GraduationCap, pro: true },
   { label: "Resources", href: "/portal/dashboard/resources", icon: FolderDown },
   { label: "AI tutor", href: "/portal/dashboard/ai", icon: Sparkles, pro: true },
 ];

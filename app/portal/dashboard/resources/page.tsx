@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { useDashboard } from "@/lib/dashboard-context";
-import { Download, FileText, BookOpen, Puzzle, Video, Star, Search, Filter } from "lucide-react";
+import { MODULES } from "@/lib/modules";
+import { Download, FileText, BookOpen, Puzzle, Video, Star, Search, Filter, Play, Sparkles, Clock, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 type ResourceType = "Worksheet" | "Study guide" | "Practice pack" | "Video" | "Cheat sheet";
@@ -21,9 +23,9 @@ type Resource = {
   color: string;
 };
 
-const RESOURCES: Resource[] = [
+const RESOURCES: (Resource & { moduleSlug?: string })[] = [
   { id: "r-01", title: "NAPLAN Y5 Practice Pack",         type: "Practice pack", strand: "NAPLAN",                       years: [5],       pages: 32, downloads: 4820, featured: true,  color: "from-orange-500 to-orange-600" },
-  { id: "r-02", title: "Fractions Mastery Worksheets",    type: "Worksheet",    strand: "Number & Algebra",              years: [3, 5, 7], pages: 18, downloads: 3611,                    color: "from-sky-500 to-sky-700" },
+  { id: "r-02", title: "Fractions Mastery Worksheets",    type: "Worksheet",    strand: "Number & Algebra",              years: [3, 5, 7], pages: 18, downloads: 3611,                    color: "from-sky-500 to-sky-700", moduleSlug: "y5-fractions-mastery" },
   { id: "r-03", title: "Decimals & Percentages Guide",    type: "Study guide",  strand: "Number & Algebra",              years: [5, 7],    pages: 22, downloads: 2740,                    color: "from-sky-500 to-sky-700" },
   { id: "r-04", title: "Area, Perimeter & Volume Set",    type: "Worksheet",    strand: "Measurement & Geometry",        years: [5, 7],    pages: 14, downloads: 2013,                    color: "from-orange-500 to-orange-600" },
   { id: "r-05", title: "Y7 Algebra Bridging Videos",      type: "Video",        strand: "Number & Algebra",              years: [7],       minutes: 45, downloads: 1850,                  color: "from-navy-600 to-navy-800" },
@@ -67,14 +69,70 @@ export default function ResourcesPage() {
     <>
       <PageHeader
         eyebrow="Resources"
-        title="Downloads, worksheets & study guides"
-        description="Everything your tutor recommends — plus our full public NAPLAN library."
+        title="Downloads, worksheets & interactive modules"
+        description="Everything your tutor recommends — from printable practice packs to hands-on study modules with instant feedback."
         actions={
-          <button className="inline-flex items-center gap-1.5 rounded-full bg-navy-700 px-4 py-2 text-sm font-semibold text-white hover:bg-navy-800">
-            Suggest a resource
-          </button>
+          <Link
+            href="/portal/dashboard/modules"
+            className="inline-flex items-center gap-1.5 rounded-full bg-navy-700 px-4 py-2 text-sm font-semibold text-white hover:bg-navy-800"
+          >
+            <Sparkles className="h-4 w-4 text-orange-300" /> Browse all modules
+          </Link>
         }
       />
+
+      {/* Interactive modules */}
+      <section className="space-y-4">
+        <div className="flex items-baseline justify-between">
+          <div>
+            <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-orange-600">
+              <Sparkles className="h-3.5 w-3.5" /> Interactive study modules
+            </div>
+            <h2 className="mt-1 font-display text-xl font-semibold text-navy-800">
+              Learn by doing — with instant feedback
+            </h2>
+            <p className="mt-1 max-w-2xl text-sm text-slate-600">
+              Hands-on lessons with theory, worked examples and questions that mark themselves.
+              Perfect for the days you can&rsquo;t make it to a lesson.
+            </p>
+          </div>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {MODULES.map((m) => (
+            <Link
+              key={m.slug}
+              href={`/portal/dashboard/modules/${m.slug}`}
+              className="group flex h-full flex-col overflow-hidden rounded-3xl bg-white ring-1 ring-navy-100 shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift hover:ring-sky-200"
+            >
+              <div className={cn("relative h-24 bg-gradient-to-br", m.color)}>
+                <div className="absolute inset-0 bg-noise opacity-30" />
+                <div className="absolute left-3 top-3 rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-semibold text-white ring-1 ring-inset ring-white/30">
+                  Year {m.year}
+                </div>
+                <div className="absolute right-3 top-3 rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-semibold text-white ring-1 ring-inset ring-white/30">
+                  Interactive
+                </div>
+              </div>
+              <div className="flex flex-1 flex-col p-5">
+                <h3 className="font-display text-sm font-semibold text-navy-800">{m.title}</h3>
+                <p className="mt-1 line-clamp-2 text-xs text-slate-600">{m.subtitle}</p>
+                <div className="mt-auto flex items-center justify-between pt-4 text-[11px] text-slate-500">
+                  <span className="inline-flex items-center gap-1">
+                    <Clock className="h-3 w-3" /> {m.minutes} min
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-sky-700">
+                    Open <Play className="h-3 w-3" />
+                  </span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+        Downloadable resources
+      </div>
 
       {/* Featured strip */}
       <section className="grid gap-4 sm:grid-cols-2">
@@ -170,9 +228,18 @@ export default function ResourcesPage() {
                   <span className="text-[11px] text-slate-500">
                     {r.downloads.toLocaleString()} downloads
                   </span>
-                  <button className="inline-flex items-center gap-1 rounded-full bg-navy-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-navy-800">
-                    <Download className="h-3.5 w-3.5" /> Get
-                  </button>
+                  {r.moduleSlug ? (
+                    <Link
+                      href={`/portal/dashboard/modules/${r.moduleSlug}`}
+                      className="inline-flex items-center gap-1 rounded-full bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-600"
+                    >
+                      Open module <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                  ) : (
+                    <button className="inline-flex items-center gap-1 rounded-full bg-navy-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-navy-800">
+                      <Download className="h-3.5 w-3.5" /> Get
+                    </button>
+                  )}
                 </div>
               </div>
             </article>
