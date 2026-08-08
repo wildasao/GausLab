@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/Button";
 import { useState } from "react";
 import { getSupabaseBrowser } from "@/lib/supabase/browser";
+import { CheckCircle2, Phone, Sparkles } from "lucide-react";
 
 type Status = "idle" | "loading" | "done" | "error";
 
@@ -10,6 +11,7 @@ export function ContactForm() {
   const supabase = getSupabaseBrowser();
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
+  const [submittedName, setSubmittedName] = useState<string>("");
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -17,8 +19,9 @@ export function ContactForm() {
     setError(null);
     const form = e.currentTarget;
     const data = new FormData(form);
+    const parentName = String(data.get("name") || "");
     const payload = {
-      parent_name: String(data.get("name") || ""),
+      parent_name: parentName,
       child_name: String(data.get("child") || ""),
       email: String(data.get("email") || ""),
       phone: String(data.get("phone") || ""),
@@ -26,6 +29,7 @@ export function ContactForm() {
       preferred_format: String(data.get("format") || ""),
       notes: String(data.get("notes") || ""),
       consent: data.get("consent") === "on",
+      source_url: typeof window !== "undefined" ? window.location.href : null,
     };
     const { error } = await supabase.from("enquiries").insert(payload);
     if (error) {
@@ -33,8 +37,49 @@ export function ContactForm() {
       setStatus("error");
       return;
     }
+    setSubmittedName(parentName.split(" ")[0] || "");
     form.reset();
     setStatus("done");
+  }
+
+  if (status === "done") {
+    return (
+      <section className="rounded-3xl bg-gradient-to-br from-emerald-50 via-white to-sky-50 p-8 shadow-soft ring-1 ring-navy-100">
+        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-500 text-white shadow-lift">
+          <CheckCircle2 className="h-6 w-6" />
+        </div>
+        <h2 className="mt-5 font-display text-2xl font-semibold text-navy-800 sm:text-3xl">
+          Thanks{submittedName ? `, ${submittedName}` : ""} — your enquiry is in.
+        </h2>
+        <p className="mt-2 max-w-lg text-sm leading-relaxed text-slate-600">
+          One of our program coordinators will call you within one business day to schedule
+          your child&rsquo;s free 45-minute diagnostic assessment.
+        </p>
+        <div className="mt-6 grid gap-4 sm:grid-cols-3">
+          <Step n={1} label="We call you" desc="To pick a time that suits your family." />
+          <Step n={2} label="Free assessment" desc="45 min, no obligation. Written report emailed." />
+          <Step n={3} label="You decide" desc="Enrol or take the report and go — no pressure." />
+        </div>
+        <div className="mt-6 flex flex-wrap items-center gap-3 text-sm">
+          <a
+            href="tel:+61212345678"
+            className="inline-flex items-center gap-1.5 rounded-full bg-navy-700 px-4 py-2 font-semibold text-white hover:bg-navy-800"
+          >
+            <Phone className="h-4 w-4" /> Or call us: 02 1234 5678
+          </a>
+          <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+            <Sparkles className="h-3 w-3 text-orange-500" /> Meanwhile, check the free resource library.
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => setStatus("idle")}
+          className="mt-4 text-xs font-semibold text-sky-700 hover:text-sky-800"
+        >
+          Send another enquiry
+        </button>
+      </section>
+    );
   }
 
   return (
@@ -91,11 +136,6 @@ export function ContactForm() {
           {error}
         </div>
       )}
-      {status === "done" && (
-        <div className="mt-4 rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700 ring-1 ring-inset ring-emerald-200">
-          Thanks — your enquiry is in. We&rsquo;ll call within one business day.
-        </div>
-      )}
       <div className="mt-6 flex flex-wrap gap-3">
         <Button size="lg" type="submit" disabled={status === "loading"}>
           {status === "loading" ? "Sending…" : "Book my free assessment"}
@@ -105,6 +145,18 @@ export function ContactForm() {
         </Button>
       </div>
     </form>
+  );
+}
+
+function Step({ n, label, desc }: { n: number; label: string; desc: string }) {
+  return (
+    <div className="rounded-2xl bg-white p-4 ring-1 ring-navy-100">
+      <div className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-navy-700 text-xs font-semibold text-white">
+        {n}
+      </div>
+      <div className="mt-2 text-sm font-semibold text-navy-800">{label}</div>
+      <div className="mt-0.5 text-xs text-slate-500">{desc}</div>
+    </div>
   );
 }
 

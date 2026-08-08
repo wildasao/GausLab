@@ -16,8 +16,10 @@ import {
   LifeBuoy,
   LogOut,
   GraduationCap,
+  Inbox,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { useIsAdmin } from "@/lib/enquiries";
 
 const primary = [
   { label: "Overview", href: "/portal/dashboard", icon: LayoutDashboard },
@@ -39,6 +41,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname() || "/";
   const router = useRouter();
   const supabase = getSupabaseBrowser();
+  const { isAdmin } = useIsAdmin();
   async function signOut() {
     await supabase.auth.signOut();
     router.push("/portal");
@@ -64,6 +67,24 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       <nav className="mt-6 flex-1 space-y-1 px-3" aria-label="Portal">
+        {isAdmin && (
+          <Link
+            href="/portal/dashboard/enquiries"
+            onClick={onNavigate}
+            className={cn(
+              "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+              pathname.startsWith("/portal/dashboard/enquiries")
+                ? "bg-orange-500/15 text-white ring-1 ring-inset ring-orange-400/40"
+                : "text-orange-300 hover:bg-white/5"
+            )}
+          >
+            <Inbox className="h-4 w-4" />
+            <span className="flex-1">Enquiries</span>
+            <span className="rounded-full bg-orange-500/30 px-2 py-0.5 text-[10px] font-semibold text-orange-100 ring-1 ring-inset ring-orange-400/40">
+              CRM
+            </span>
+          </Link>
+        )}
         {primary.map((item) => {
           const active =
             item.href === "/portal/dashboard"

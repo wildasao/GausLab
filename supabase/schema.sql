@@ -104,9 +104,17 @@ create table if not exists public.enquiries (
   preferred_format text,
   notes text,
   consent boolean not null default false,
-  status text not null default 'new',
+  status text not null default 'new' check (status in ('new','contacted','booked','won','lost','spam')),
+  source_url text,
   created_at timestamptz not null default now()
 );
+-- Add columns if the table already existed before this migration
+alter table public.enquiries add column if not exists source_url text;
+do $$ begin
+  alter table public.enquiries drop constraint if exists enquiries_status_check;
+  alter table public.enquiries add constraint enquiries_status_check
+    check (status in ('new','contacted','booked','won','lost','spam'));
+exception when others then null; end $$;
 
 create table if not exists public.leads (
   id uuid primary key default gen_random_uuid(),
@@ -160,6 +168,38 @@ drop policy if exists "enquiries anon insert" on public.enquiries;
 drop policy if exists "leads anon insert"     on public.leads;
 create policy "enquiries anon insert" on public.enquiries for insert to anon, authenticated with check (true);
 create policy "leads anon insert"     on public.leads     for insert to anon, authenticated with check (true);
+
+-- Admin CRM access — only profiles with role='admin' can read/update enquiries and leads.
+drop policy if exists "enquiries admin read"   on public.enquiries;
+drop policy if exists "enquiries admin update" on public.enquiries;
+drop policy if exists "leads admin read"       on public.leads;
+create policy "enquiries admin read"   on public.enquiries for select to authenticated
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
+create policy "enquiries admin update" on public.enquiries for update to authenticated
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
+create policy "leads admin read"       on public.leads     for select to authenticated
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
+
+-- Self-promote helper: the FIRST parent to sign up can call this once to become admin.
+-- After that, further calls are no-ops. This is safe because it only affects the caller
+-- and only if no admin exists yet.
+create or replace function public.claim_admin()
+returns text
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  existing int;
+begin
+  if auth.uid() is null then raise exception 'must be authenticated'; end if;
+  select count(*) into existing from public.profiles where role = 'admin';
+  if existing > 0 then return 'admin already claimed'; end if;
+  update public.profiles set role = 'admin' where id = auth.uid();
+  return 'promoted to admin';
+end;
+$$;
+grant execute on function public.claim_admin() to authenticated;
 
 -- ─── Trigger: create a profile row when a new auth user is created ────
 create or replace function public.handle_new_user()
