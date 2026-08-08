@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/site/PageHeader";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { ArrowRight, Clock } from "lucide-react";
+import { ARTICLES } from "@/lib/blog";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -11,70 +12,8 @@ export const metadata: Metadata = {
     "Insights, strategies and parenting advice for helping your child succeed in maths and NAPLAN.",
 };
 
-const posts = [
-  {
-    slug: "naplan-year-5-2026-preparation-guide",
-    title: "NAPLAN Year 5 2026: The Complete Preparation Guide for Parents",
-    excerpt:
-      "A step-by-step plan for the eight weeks leading into NAPLAN — with topic checklists and practice question sets.",
-    tag: "NAPLAN",
-    tone: "orange" as const,
-    read: "8 min read",
-    color: "from-orange-500 to-orange-600",
-  },
-  {
-    slug: "fractions-that-actually-make-sense",
-    title: "Fractions That Actually Make Sense: How We Teach Year 5",
-    excerpt:
-      "The classroom strategies parents can use at home to make fractions click for their child.",
-    tag: "Learning strategies",
-    tone: "sky" as const,
-    read: "6 min read",
-    color: "from-sky-500 to-sky-700",
-  },
-  {
-    slug: "helping-anxious-maths-students",
-    title: "Maths Anxiety Is Real — Here's How To Help At Home",
-    excerpt:
-      "Practical, evidence-based ways parents can rebuild a child's confidence with numbers.",
-    tag: "Parent advice",
-    tone: "navy" as const,
-    read: "5 min read",
-    color: "from-navy-600 to-navy-800",
-  },
-  {
-    slug: "year-9-naplan-band-9-what-it-takes",
-    title: "Year 9 NAPLAN Band 9: What It Actually Takes",
-    excerpt:
-      "A breakdown of what Band 9 students demonstrate — and how to close the gap.",
-    tag: "NAPLAN",
-    tone: "orange" as const,
-    read: "7 min read",
-    color: "from-orange-500 to-orange-600",
-  },
-  {
-    slug: "why-mental-maths-still-matters",
-    title: "Why Mental Maths Still Matters In An AI World",
-    excerpt:
-      "Cognitive science suggests strong mental arithmetic remains foundational for higher-order thinking.",
-    tag: "Learning strategies",
-    tone: "sky" as const,
-    read: "4 min read",
-    color: "from-sky-500 to-sky-700",
-  },
-  {
-    slug: "choosing-a-maths-tutor-checklist",
-    title: "Choosing A Maths Tutor: The Parent's Checklist",
-    excerpt:
-      "Ten questions to ask before enrolling your child in any tutoring program.",
-    tag: "Parent advice",
-    tone: "navy" as const,
-    read: "5 min read",
-    color: "from-navy-600 to-navy-800",
-  },
-];
-
 export default function BlogPage() {
+  const [featured, ...rest] = ARTICLES;
   return (
     <>
       <PageHeader
@@ -84,17 +23,52 @@ export default function BlogPage() {
       />
       <section className="pb-24">
         <Container>
+          {/* Featured */}
+          {featured && (
+            <Link
+              href={`/blog/${featured.slug}`}
+              className="mb-10 grid overflow-hidden rounded-3xl bg-white ring-1 ring-navy-100 shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift hover:ring-sky-200 lg:grid-cols-2"
+            >
+              <div className={`relative min-h-[220px] bg-gradient-to-br ${featured.color}`}>
+                <div className="absolute inset-0 bg-noise opacity-40" />
+                <div className="absolute left-4 top-4">
+                  <Badge tone={featured.tagTone}>{featured.tag}</Badge>
+                </div>
+              </div>
+              <div className="flex flex-col justify-center p-8 sm:p-10">
+                <div className="text-[11px] font-semibold uppercase tracking-widest text-orange-600">
+                  Featured
+                </div>
+                <h2 className="mt-1 font-display text-2xl font-semibold text-navy-800 sm:text-3xl">
+                  {featured.title}
+                </h2>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  {featured.excerpt}
+                </p>
+                <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
+                  <span className="inline-flex items-center gap-1">
+                    <Clock className="h-3.5 w-3.5" /> {featured.readMinutes} min read
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-sm font-semibold text-sky-700">
+                    Read article <ArrowRight className="h-3.5 w-3.5" />
+                  </span>
+                </div>
+              </div>
+            </Link>
+          )}
+
+          {/* Grid */}
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {posts.map((p) => (
+            {rest.map((p) => (
               <Link
                 key={p.slug}
                 href={`/blog/${p.slug}`}
-                className="group flex h-full flex-col overflow-hidden rounded-3xl bg-white ring-1 ring-navy-100 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-lift hover:ring-sky-200"
+                className="group flex h-full flex-col overflow-hidden rounded-3xl bg-white ring-1 ring-navy-100 shadow-soft transition-all duration-200 hover:-translate-y-1 hover:shadow-lift hover:ring-sky-200"
               >
                 <div className={`aspect-[16/9] w-full bg-gradient-to-br ${p.color} relative`}>
                   <div className="absolute inset-0 bg-noise opacity-40" />
                   <div className="absolute bottom-3 left-3">
-                    <Badge tone={p.tone}>{p.tag}</Badge>
+                    <Badge tone={p.tagTone}>{p.tag}</Badge>
                   </div>
                 </div>
                 <div className="flex flex-1 flex-col p-6">
@@ -105,7 +79,9 @@ export default function BlogPage() {
                     {p.excerpt}
                   </p>
                   <div className="mt-5 flex items-center justify-between text-xs text-slate-500">
-                    <span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {p.read}</span>
+                    <span className="inline-flex items-center gap-1">
+                      <Clock className="h-3.5 w-3.5" /> {p.readMinutes} min read
+                    </span>
                     <span className="inline-flex items-center gap-1 text-sm font-semibold text-sky-700">
                       Read more <ArrowRight className="h-3.5 w-3.5" />
                     </span>
