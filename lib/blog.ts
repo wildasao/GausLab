@@ -22,6 +22,8 @@ export type Article = {
   tag: Tag;
   tagTone: "orange" | "sky" | "navy";
   color: string;
+  /** Path under /public — e.g. "/blog/foo.png". If set, replaces the gradient hero. */
+  heroImage?: string;
   readMinutes: number;
   publishedAt: string;
   author: Author;
@@ -60,6 +62,7 @@ export const ARTICLES: Article[] = [
     tag: "NAPLAN",
     tagTone: "orange",
     color: "from-orange-500 to-orange-600",
+    heroImage: "/blog/naplan-year-5-2026-preparation-guide.png",
     readMinutes: 8,
     publishedAt: "2026-01-14",
     author: AUTHORS.priya,
@@ -169,6 +172,7 @@ export const ARTICLES: Article[] = [
     tag: "Learning strategies",
     tagTone: "sky",
     color: "from-sky-500 to-sky-700",
+    heroImage: "/blog/fractions-that-actually-make-sense.png",
     readMinutes: 6,
     publishedAt: "2026-01-28",
     author: AUTHORS.priya,
@@ -247,6 +251,7 @@ export const ARTICLES: Article[] = [
     tag: "Parent advice",
     tagTone: "navy",
     color: "from-navy-600 to-navy-800",
+    heroImage: "/blog/helping-anxious-maths-students.png",
     readMinutes: 5,
     publishedAt: "2026-02-04",
     author: AUTHORS.academy,
@@ -309,6 +314,7 @@ export const ARTICLES: Article[] = [
     tag: "NAPLAN",
     tagTone: "orange",
     color: "from-orange-500 to-orange-600",
+    heroImage: "/blog/year-9-naplan-band-9-what-it-takes.png",
     readMinutes: 7,
     publishedAt: "2026-02-11",
     author: AUTHORS.james,
@@ -383,6 +389,7 @@ export const ARTICLES: Article[] = [
     tag: "Learning strategies",
     tagTone: "sky",
     color: "from-sky-500 to-sky-700",
+    heroImage: "/blog/why-mental-maths-still-matters.png",
     readMinutes: 4,
     publishedAt: "2026-02-18",
     author: AUTHORS.academy,
@@ -437,6 +444,7 @@ export const ARTICLES: Article[] = [
     tag: "Parent advice",
     tagTone: "navy",
     color: "from-navy-600 to-navy-800",
+    heroImage: "/blog/choosing-a-maths-tutor-checklist.png",
     readMinutes: 5,
     publishedAt: "2026-02-25",
     author: AUTHORS.academy,

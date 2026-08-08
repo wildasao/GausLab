@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/Container";
@@ -83,7 +84,21 @@ export default async function BlogArticle({
     <>
       {/* Hero */}
       <section className={`relative overflow-hidden bg-gradient-to-br ${article.color} text-white`}>
-        <div className="absolute inset-0 bg-noise opacity-30" />
+        {article.heroImage ? (
+          <>
+            <Image
+              src={article.heroImage}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-navy-900/85 via-navy-900/60 to-navy-900/20" />
+          </>
+        ) : (
+          <div className="absolute inset-0 bg-noise opacity-30" />
+        )}
         <Container>
           <div className="relative py-14 sm:py-20">
             <Link
@@ -249,8 +264,18 @@ export default async function BlogArticle({
                     href={`/blog/${r.slug}`}
                     className="group flex h-full flex-col overflow-hidden rounded-3xl bg-white ring-1 ring-navy-100 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift hover:ring-sky-200"
                   >
-                    <div className={`aspect-[16/9] w-full bg-gradient-to-br ${r.color}`}>
-                      <div className="h-full w-full bg-noise opacity-40" />
+                    <div className={`relative aspect-[16/9] w-full overflow-hidden bg-gradient-to-br ${r.color}`}>
+                      {r.heroImage ? (
+                        <Image
+                          src={r.heroImage}
+                          alt=""
+                          fill
+                          sizes="(min-width: 640px) 33vw, 100vw"
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="h-full w-full bg-noise opacity-40" />
+                      )}
                     </div>
                     <div className="flex flex-1 flex-col p-4">
                       <Badge tone={r.tagTone}>{r.tag}</Badge>

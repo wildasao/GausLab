@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
@@ -29,9 +30,20 @@ export default function BlogPage() {
               href={`/blog/${featured.slug}`}
               className="mb-10 grid overflow-hidden rounded-3xl bg-white ring-1 ring-navy-100 shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift hover:ring-sky-200 lg:grid-cols-2"
             >
-              <div className={`relative min-h-[220px] bg-gradient-to-br ${featured.color}`}>
-                <div className="absolute inset-0 bg-noise opacity-40" />
-                <div className="absolute left-4 top-4">
+              <div className={`relative min-h-[260px] overflow-hidden bg-gradient-to-br ${featured.color}`}>
+                {featured.heroImage ? (
+                  <Image
+                    src={featured.heroImage}
+                    alt=""
+                    fill
+                    priority
+                    sizes="(min-width: 1024px) 50vw, 100vw"
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-noise opacity-40" />
+                )}
+                <div className="absolute left-4 top-4 z-10">
                   <Badge tone={featured.tagTone}>{featured.tag}</Badge>
                 </div>
               </div>
@@ -65,9 +77,19 @@ export default function BlogPage() {
                 href={`/blog/${p.slug}`}
                 className="group flex h-full flex-col overflow-hidden rounded-3xl bg-white ring-1 ring-navy-100 shadow-soft transition-all duration-200 hover:-translate-y-1 hover:shadow-lift hover:ring-sky-200"
               >
-                <div className={`aspect-[16/9] w-full bg-gradient-to-br ${p.color} relative`}>
-                  <div className="absolute inset-0 bg-noise opacity-40" />
-                  <div className="absolute bottom-3 left-3">
+                <div className={`relative aspect-[16/9] w-full overflow-hidden bg-gradient-to-br ${p.color}`}>
+                  {p.heroImage ? (
+                    <Image
+                      src={p.heroImage}
+                      alt=""
+                      fill
+                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-noise opacity-40" />
+                  )}
+                  <div className="absolute bottom-3 left-3 z-10">
                     <Badge tone={p.tagTone}>{p.tag}</Badge>
                   </div>
                 </div>
