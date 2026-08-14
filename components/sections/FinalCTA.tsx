@@ -29,12 +29,12 @@ export function FinalCTA() {
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row lg:col-span-4 lg:justify-end">
-              <Button href="/contact#assessment" size="lg" variant="primary">
+              <Button href="/assessment" size="lg" variant="primary">
                 <CalendarCheck className="h-4 w-4" />
-                Book free assessment
+                Take 5-min diagnostic
               </Button>
-              <Button href="tel:+61212345678" size="lg" variant="outline" className="!bg-white/10 !text-white !ring-white/20 hover:!bg-white/15">
-                Call 02 1234 5678
+              <Button href="/contact#assessment" size="lg" variant="outline" className="!bg-white/10 !text-white !ring-white/20 hover:!bg-white/15">
+                Book with a tutor
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </div>

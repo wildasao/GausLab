@@ -53,7 +53,7 @@ export function Header() {
           <Button href="/portal" variant="ghost" size="sm">
             Parent Login
           </Button>
-          <Button href="/contact#assessment" variant="primary" size="sm">
+          <Button href="/assessment" variant="primary" size="sm">
             Free Assessment
           </Button>
         </div>
@@ -88,7 +88,7 @@ export function Header() {
               <Button href="/portal" variant="outline" size="sm">
                 Parent Login
               </Button>
-              <Button href="/contact#assessment" variant="primary" size="sm">
+              <Button href="/assessment" variant="primary" size="sm">
                 Free Assessment
               </Button>
             </div>

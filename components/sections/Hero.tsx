@@ -76,13 +76,13 @@ export function Hero() {
               transition={{ duration: 0.6, ease: "easeOut", delay: 0.15 }}
               className="mt-8 flex flex-col items-start gap-3 sm:flex-row sm:items-center"
             >
-              <Button href="/contact#assessment" size="lg">
-                Book Free Diagnostic Assessment
+              <Button href="/assessment" size="lg">
+                Take the 5-minute diagnostic
                 <ArrowRight className="h-4 w-4" />
               </Button>
-              <Button href="/#process" variant="outline" size="lg">
+              <Button href="/contact#assessment" variant="outline" size="lg">
                 <PlayCircle className="h-4 w-4 text-sky-600" />
-                See how it works
+                Book with a tutor
               </Button>
             </motion.div>
 

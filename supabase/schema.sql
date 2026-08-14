@@ -201,6 +201,38 @@ end;
 $$;
 grant execute on function public.claim_admin() to authenticated;
 
+-- =====================================================================
+-- ASSESSMENT RESULTS
+-- Rows saved when a visitor completes the free /assessment quiz and
+-- opts to receive the emailed report. Public insert; admin-only read.
+-- =====================================================================
+
+create table if not exists public.assessment_results (
+  id             uuid primary key default gen_random_uuid(),
+  year           int not null check (year in (3,5,7,9)),
+  parent_name    text,
+  email          text not null,
+  score_correct  int not null,
+  score_total    int not null,
+  score_pct      int not null,
+  band_estimate  text,
+  per_strand     jsonb,
+  source_url     text,
+  created_at     timestamptz not null default now()
+);
+
+create index if not exists assessment_results_created_idx on public.assessment_results (created_at desc);
+
+alter table public.assessment_results enable row level security;
+
+drop policy if exists "assessment_results anon insert" on public.assessment_results;
+drop policy if exists "assessment_results admin read"  on public.assessment_results;
+create policy "assessment_results anon insert" on public.assessment_results
+  for insert to anon, authenticated with check (true);
+create policy "assessment_results admin read" on public.assessment_results
+  for select to authenticated
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
+
 -- ─── Trigger: create a profile row when a new auth user is created ────
 create or replace function public.handle_new_user()
 returns trigger
