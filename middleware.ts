@@ -32,9 +32,14 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Gate the dashboard: unauthenticated visitors land on the login screen.
+  // Gate the dashboard AND the assessment quiz: unauthenticated visitors land
+  // on the login screen. The /assessment landing (year picker) remains public;
+  // only /assessment/y<year> quiz routes are gated.
   const url = request.nextUrl;
-  if (url.pathname.startsWith("/portal/dashboard") && !user) {
+  const gated =
+    url.pathname.startsWith("/portal/dashboard") ||
+    /^\/assessment\/y\d+/i.test(url.pathname);
+  if (gated && !user) {
     const login = url.clone();
     login.pathname = "/portal";
     login.searchParams.set("next", url.pathname);

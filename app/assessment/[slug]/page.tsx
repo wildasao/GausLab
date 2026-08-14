@@ -17,9 +17,10 @@ import {
 import { ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
 import { cn } from "@/lib/cn";
 
-export default function AssessmentQuizPage({ params }: { params: Promise<{ year: string }> }) {
-  const { year: rawYear } = use(params);
-  const y = parseInt(rawYear, 10);
+export default function AssessmentQuizPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
+  // Slug format: y3 | y5 | y7 | y9  (keeps URLs descriptive)
+  const y = parseInt(slug.replace(/^y/i, ""), 10);
   if (![3, 5, 7, 9].includes(y)) return notFound();
   const year = y as AssessmentYear;
   const router = useRouter();

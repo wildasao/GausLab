@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Trophy,
@@ -38,22 +38,47 @@ export function AssessmentResults({
   answers: Answer[];
   onRetake: () => void;
 }) {
+  const supabase = useMemo(() => getSupabaseBrowser(), []);
   const [email, setEmail] = useState("");
   const [parentName, setParentName] = useState("");
+  const [authed, setAuthed] = useState<boolean | null>(null);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
   const [showBreakdown, setShowBreakdown] = useState(false);
+  const autoSavedRef = useRef(false);
 
-  async function saveLead(e: React.FormEvent) {
-    e.preventDefault();
+  // On mount: fetch signed-in user; pre-fill and auto-save
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      const u = data.user;
+      if (u) {
+        setAuthed(true);
+        const meta = (u.user_metadata as { full_name?: string }) ?? {};
+        setEmail(u.email ?? "");
+        setParentName(meta.full_name ?? "");
+        if (!autoSavedRef.current) {
+          autoSavedRef.current = true;
+          await persist({
+            email: u.email ?? "",
+            parentName: meta.full_name ?? "",
+          });
+        }
+      } else {
+        setAuthed(false);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [supabase]);
+
+  async function persist(input: { email: string; parentName: string }) {
     setStatus("saving");
     setError(null);
     try {
-      const supabase = getSupabaseBrowser();
       const { error: err } = await supabase.from("assessment_results").insert({
         year,
-        parent_name: parentName || null,
-        email,
+        parent_name: input.parentName || null,
+        email: input.email,
         score_correct: result.correct,
         score_total: result.total,
         score_pct: result.pct,
@@ -71,6 +96,11 @@ export function AssessmentResults({
       setError(e2 instanceof Error ? e2.message : "Failed to save");
       setStatus("error");
     }
+  }
+
+  async function saveLead(e: React.FormEvent) {
+    e.preventDefault();
+    await persist({ email, parentName });
   }
 
   const recModules = MODULE_RECS[year]
@@ -187,8 +217,8 @@ export function AssessmentResults({
         </section>
       )}
 
-      {/* Email capture */}
-      {status !== "saved" ? (
+      {/* Email capture — hidden for logged-in parents (they got auto-saved) */}
+      {authed === false && status !== "saved" ? (
         <section className="relative overflow-hidden rounded-3xl bg-navy-800 p-6 text-white shadow-lift sm:p-8">
           <div
             aria-hidden
@@ -255,18 +285,33 @@ export function AssessmentResults({
             </div>
             <div>
               <h3 className="font-display text-lg font-semibold text-navy-800">
-                Sent — check your inbox
+                {authed ? "Saved to your account" : "Sent — check your inbox"}
               </h3>
               <p className="mt-1 text-sm text-slate-600">
-                Your report for Year {year} is on its way to <b>{email}</b>.
-                Want to take the next step?
+                {authed ? (
+                  <>Your Year {year} result is stored on your parent dashboard{email ? <> (<b>{email}</b>)</> : ""}. Want to keep going?</>
+                ) : (
+                  <>Your report for Year {year} is on its way to <b>{email}</b>. Want to take the next step?</>
+                )}
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
+                {authed && (
+                  <Link
+                    href="/portal/dashboard"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-navy-700 px-4 py-2 text-sm font-semibold text-white hover:bg-navy-800"
+                  >
+                    Go to my dashboard <ArrowRight className="h-4 w-4" />
+                  </Link>
+                )}
                 <Link
                   href="/contact#assessment"
-                  className="inline-flex items-center gap-1.5 rounded-full bg-navy-700 px-4 py-2 text-sm font-semibold text-white hover:bg-navy-800"
+                  className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold ${
+                    authed
+                      ? "bg-white text-navy-700 ring-1 ring-navy-100 hover:bg-navy-50"
+                      : "bg-navy-700 text-white hover:bg-navy-800"
+                  }`}
                 >
-                  Book with a tutor <ArrowRight className="h-4 w-4" />
+                  Book with a tutor {!authed && <ArrowRight className="h-4 w-4" />}
                 </Link>
                 <Link
                   href="/portal/dashboard/modules"

@@ -44,7 +44,7 @@ export default function AssessmentLanding() {
                 <Clock className="h-3.5 w-3.5 text-sky-600" /> ~5 minutes
               </li>
               <li className="inline-flex items-center gap-1.5">
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> No email required
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> Parent login required · results saved to your account
               </li>
               <li className="inline-flex items-center gap-1.5">
                 <Sparkles className="h-3.5 w-3.5 text-orange-500" /> Interactive — not just multiple choice
@@ -64,7 +64,7 @@ export default function AssessmentLanding() {
               {YEARS.map((y) => (
                 <Link
                   key={y.year}
-                  href={`/assessment/y${y.year}`}
+                  href={`/portal?next=${encodeURIComponent(`/assessment/y${y.year}`)}`}
                   className="group relative flex h-full flex-col overflow-hidden rounded-3xl bg-white ring-1 ring-navy-100 shadow-soft transition-all duration-200 hover:-translate-y-1 hover:shadow-lift hover:ring-sky-200"
                 >
                   <div className={`relative h-24 bg-gradient-to-br ${y.tone}`}>
@@ -82,7 +82,7 @@ export default function AssessmentLanding() {
                     </h3>
                     <p className="mt-1 flex-1 text-xs leading-relaxed text-slate-600">{y.body}</p>
                     <div className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-sky-700">
-                      Start test <ArrowRight className="h-3.5 w-3.5" />
+                      Sign in &amp; start <ArrowRight className="h-3.5 w-3.5" />
                     </div>
                   </div>
                 </Link>
