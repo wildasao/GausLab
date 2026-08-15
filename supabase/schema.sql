@@ -225,6 +225,32 @@ create table if not exists public.assessment_results (
 -- Backfill for schemas created before user_id was added
 alter table public.assessment_results add column if not exists user_id uuid references auth.users(id) on delete set null;
 
+-- =====================================================================
+-- PERSONALITY / LEARNER PROFILE
+-- Short pre-quiz survey so we can personalise the visuals, tone and
+-- pacing of the diagnostic experience for each learner.
+-- =====================================================================
+
+create table if not exists public.personality_profiles (
+  user_id        uuid primary key references auth.users(id) on delete cascade,
+  interests      text[] default '{}',
+  learning_style text,
+  confidence     text,
+  motivation     text,
+  visual_theme   text default 'apples',
+  updated_at     timestamptz not null default now()
+);
+
+alter table public.personality_profiles enable row level security;
+
+drop policy if exists "profile own"        on public.personality_profiles;
+drop policy if exists "profile own insert" on public.personality_profiles;
+drop policy if exists "profile own update" on public.personality_profiles;
+
+create policy "profile own"        on public.personality_profiles for select to authenticated using (user_id = auth.uid());
+create policy "profile own insert" on public.personality_profiles for insert to authenticated with check (user_id = auth.uid());
+create policy "profile own update" on public.personality_profiles for update to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+
 create index if not exists assessment_results_created_idx on public.assessment_results (created_at desc);
 create index if not exists assessment_results_user_idx    on public.assessment_results (user_id, created_at desc);
 

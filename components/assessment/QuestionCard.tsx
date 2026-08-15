@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import type { Question, Answer, QuestionVisual } from "@/lib/assessment";
+import type { VisualTheme } from "@/lib/personality";
 import { Check, CheckSquare, Square } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { MultiplicationArray } from "@/components/dashboard/modules/visuals/MultiplicationArray";
@@ -10,13 +11,13 @@ import { FractionBar } from "@/components/dashboard/modules/visuals/FractionBar"
 import { PythagorasTriangle } from "@/components/dashboard/modules/visuals/PythagorasTriangle";
 import { PlaceValueBlocks } from "@/components/dashboard/modules/visuals/PlaceValueBlocks";
 
-function VisualRenderer({ v }: { v: QuestionVisual }) {
+function VisualRenderer({ v, preferredTheme }: { v: QuestionVisual; preferredTheme?: VisualTheme }) {
   if (v.name === "multiplication-array")
     return (
       <MultiplicationArray
         startRows={v.props.rows}
         startCols={v.props.cols}
-        startTheme={v.props.theme ?? "apples"}
+        startTheme={preferredTheme ?? v.props.theme ?? "apples"}
       />
     );
   if (v.name === "fraction-bar")
@@ -32,11 +33,13 @@ export function QuestionCard({
   index,
   onAnswer,
   initial,
+  preferredTheme,
 }: {
   question: Question;
   index: number;
   onAnswer: (a: Answer) => void;
   initial?: Answer;
+  preferredTheme?: VisualTheme;
 }) {
   return (
     <section className="rounded-3xl bg-white p-6 shadow-soft ring-1 ring-navy-100 sm:p-8">
@@ -49,7 +52,7 @@ export function QuestionCard({
 
       {"visual" in question && question.visual && (
         <div className="mt-5">
-          <VisualRenderer v={question.visual} />
+          <VisualRenderer v={question.visual} preferredTheme={preferredTheme} />
         </div>
       )}
 

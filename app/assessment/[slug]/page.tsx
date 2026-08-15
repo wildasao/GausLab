@@ -8,12 +8,14 @@ import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { QuestionCard } from "@/components/assessment/QuestionCard";
 import { AssessmentResults } from "@/components/assessment/AssessmentResults";
+import { PersonalityQuiz } from "@/components/assessment/PersonalityQuiz";
 import {
   sampleQuestions,
   score,
   type AssessmentYear,
   type Answer,
 } from "@/lib/assessment";
+import { usePersonalityProfile, type PersonalityProfile } from "@/lib/personality";
 import { ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -31,7 +33,15 @@ export default function AssessmentQuizPage({ params }: { params: Promise<{ slug:
 
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<string, Answer>>({});
-  const [phase, setPhase] = useState<"quiz" | "done">("quiz");
+  const [phase, setPhase] = useState<"profile" | "quiz" | "done">("profile");
+  const { profile: existingProfile, loading: profileLoading, refresh: refreshProfile } = usePersonalityProfile();
+  const [profileOverride, setProfileOverride] = useState<PersonalityProfile | null>(null);
+  const profile = profileOverride ?? existingProfile;
+
+  // Advance past the personality step if a profile already exists
+  if (phase === "profile" && !profileLoading && existingProfile) {
+    setPhase("quiz");
+  }
 
   const q = questions[idx];
   const answered = q ? Boolean(answers[q.id]) : false;
@@ -107,6 +117,23 @@ export default function AssessmentQuizPage({ params }: { params: Promise<{ slug:
           )}
         </div>
 
+        {phase === "profile" && (
+          profileLoading ? (
+            <div className="mx-auto max-w-2xl rounded-3xl bg-white p-10 text-center text-sm text-slate-500 shadow-soft ring-1 ring-navy-100">
+              Loading your profile…
+            </div>
+          ) : (
+            <PersonalityQuiz
+              onComplete={async (p) => {
+                setProfileOverride(p);
+                await refreshProfile();
+                setPhase("quiz");
+              }}
+              onSkip={() => setPhase("quiz")}
+            />
+          )
+        )}
+
         {phase === "quiz" && q && (
           <>
             <AnimatePresence mode="wait">
@@ -122,6 +149,7 @@ export default function AssessmentQuizPage({ params }: { params: Promise<{ slug:
                   index={idx}
                   onAnswer={record}
                   initial={answers[q.id]}
+                  preferredTheme={profile?.visualTheme}
                 />
               </motion.div>
             </AnimatePresence>
@@ -156,6 +184,7 @@ export default function AssessmentQuizPage({ params }: { params: Promise<{ slug:
             result={result}
             questions={questions}
             answers={Object.values(answers)}
+            profile={profile}
             onRetake={() => {
               setAnswers({});
               setIdx(0);

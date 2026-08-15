@@ -15,8 +15,10 @@ import {
 } from "lucide-react";
 import type { AssessmentYear, ScoreBreakdown, Question, Answer } from "@/lib/assessment";
 import { MODULE_RECS, isCorrect, buildFeedback } from "@/lib/assessment";
+import type { PersonalityProfile } from "@/lib/personality";
+import { overallToneFor } from "@/lib/personality";
 import { StrandRing } from "@/components/assessment/StrandRing";
-import { Lightbulb } from "lucide-react";
+import { Lightbulb, XCircle } from "lucide-react";
 import { getModule } from "@/lib/modules";
 import { getSupabaseBrowser } from "@/lib/supabase/browser";
 
@@ -32,12 +34,14 @@ export function AssessmentResults({
   result,
   questions,
   answers,
+  profile,
   onRetake,
 }: {
   year: AssessmentYear;
   result: ScoreBreakdown;
   questions: Question[];
   answers: Answer[];
+  profile?: PersonalityProfile | null;
   onRetake: () => void;
 }) {
   const supabase = useMemo(() => getSupabaseBrowser(), []);
@@ -117,6 +121,13 @@ export function AssessmentResults({
     keyof typeof result.perStrand,
     (typeof result.perStrand)[keyof typeof result.perStrand]
   ][];
+  const tone = overallToneFor(profile ?? null);
+  const toneOpener =
+    tone === "encouraging"
+      ? "You showed up and gave it a real go — that matters more than the score. "
+      : tone === "stretch"
+      ? "Nice work — let's aim higher next. "
+      : "";
 
   return (
     <div className="space-y-6">
@@ -163,7 +174,10 @@ export function AssessmentResults({
             <div className="text-[11px] font-semibold uppercase tracking-widest text-orange-600">
               What this means
             </div>
-            <p className="mt-2 text-base leading-relaxed text-navy-800">{feedback.overall}</p>
+            <p className="mt-2 text-base leading-relaxed text-navy-800">
+              {toneOpener}
+              {feedback.overall}
+            </p>
           </div>
         </div>
       </section>
@@ -400,45 +414,33 @@ export function AssessmentResults({
         </section>
       )}
 
-      {/* Question review */}
+      {/* Question review — rich per-question breakdown */}
       <section className="rounded-3xl bg-white p-6 shadow-soft ring-1 ring-navy-100 sm:p-8">
-        <button
-          type="button"
-          onClick={() => setShowBreakdown((v) => !v)}
-          className="text-sm font-semibold text-sky-700 hover:text-sky-800"
-        >
-          {showBreakdown ? "Hide" : "Show"} question-by-question review →
-        </button>
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-widest text-slate-500">
+              Question-by-question review
+            </div>
+            <h3 className="mt-1 font-display text-lg font-semibold text-navy-800">
+              What your child answered — and what the correct answer was
+            </h3>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowBreakdown((v) => !v)}
+            className="text-sm font-semibold text-sky-700 hover:text-sky-800"
+          >
+            {showBreakdown ? "Hide review" : "Show review"} →
+          </button>
+        </div>
         {showBreakdown && (
-          <ul className="mt-4 space-y-3">
+          <ul className="mt-5 space-y-3">
             {questions.map((q, i) => {
               const ans = answers.find((a) => a.qid === q.id);
               const ok = ans ? isCorrect(q, ans) : false;
               return (
-                <li
-                  key={q.id}
-                  className="rounded-2xl bg-mist p-4 ring-1 ring-inset ring-navy-100"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
-                        Q{i + 1} · {q.strand}
-                      </div>
-                      <div className="mt-0.5 text-sm font-semibold text-navy-800">
-                        {q.prompt}
-                      </div>
-                      <div className="mt-1 text-[11px] text-slate-600">{"explanation" in q ? q.explanation : ""}</div>
-                    </div>
-                    <span
-                      className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ring-1 ring-inset ${
-                        ok
-                          ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
-                          : "bg-rose-50 text-rose-700 ring-rose-200"
-                      }`}
-                    >
-                      {ok ? "Correct" : "Missed"}
-                    </span>
-                  </div>
+                <li key={q.id}>
+                  <QuestionReviewRow index={i} q={q} ans={ans} ok={ok} />
                 </li>
               );
             })}
@@ -457,4 +459,113 @@ export function AssessmentResults({
       </div>
     </div>
   );
+}
+
+// ─── Rich per-question review row ─────────────────────────────────
+function QuestionReviewRow({
+  index,
+  q,
+  ans,
+  ok,
+}: {
+  index: number;
+  q: Question;
+  ans?: Answer;
+  ok: boolean;
+}) {
+  const yours = formatUserAnswer(q, ans);
+  const correct = formatCorrectAnswer(q);
+  return (
+    <article
+      className={
+        "rounded-2xl p-4 ring-1 ring-inset " +
+        (ok ? "bg-emerald-50/50 ring-emerald-200" : "bg-rose-50/40 ring-rose-200")
+      }
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+            Q{index + 1} · {q.strand}
+          </div>
+          <div className="mt-0.5 text-sm font-semibold text-navy-800">{q.prompt}</div>
+        </div>
+        <span
+          className={
+            "shrink-0 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ring-1 ring-inset " +
+            (ok
+              ? "bg-emerald-100 text-emerald-800 ring-emerald-300"
+              : "bg-rose-100 text-rose-800 ring-rose-300")
+          }
+        >
+          {ok ? <CheckCircle2 className="h-3.5 w-3.5" /> : <XCircle className="h-3.5 w-3.5" />}
+          {ok ? "Correct" : "Missed"}
+        </span>
+      </div>
+
+      <dl className="mt-3 grid gap-2 sm:grid-cols-2">
+        <div className="rounded-xl bg-white p-3 ring-1 ring-inset ring-navy-100">
+          <dt className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+            Your answer
+          </dt>
+          <dd
+            className={
+              "mt-1 text-sm font-semibold " + (ok ? "text-emerald-700" : "text-rose-700")
+            }
+          >
+            {yours ?? <span className="text-slate-400 italic">Not answered</span>}
+          </dd>
+        </div>
+        <div className="rounded-xl bg-white p-3 ring-1 ring-inset ring-emerald-200">
+          <dt className="text-[10px] font-semibold uppercase tracking-widest text-emerald-700">
+            Correct answer
+          </dt>
+          <dd className="mt-1 text-sm font-semibold text-emerald-700">{correct}</dd>
+        </div>
+      </dl>
+
+      {"explanation" in q && q.explanation && (
+        <div className="mt-3 rounded-xl bg-white p-3 text-[12px] leading-relaxed text-slate-700 ring-1 ring-inset ring-navy-100">
+          <span className="mr-1 text-[10px] font-semibold uppercase tracking-widest text-navy-500">
+            Why:
+          </span>
+          {q.explanation}
+        </div>
+      )}
+    </article>
+  );
+}
+
+// ─── Helpers to display answers in plain text ─────────────────────
+function formatUserAnswer(q: Question, a?: Answer): string | null {
+  if (!a) return null;
+  if (q.kind === "mcq" && a.kind === "mcq") {
+    return a.picked === null ? null : `${String.fromCharCode(65 + a.picked)}. ${q.choices[a.picked]}`;
+  }
+  if (q.kind === "numeric" && a.kind === "numeric") {
+    return a.picked === null ? null : `${a.picked}${q.unit ? " " + q.unit : ""}`;
+  }
+  if (q.kind === "multiselect" && a.kind === "multiselect") {
+    if (a.picked.length === 0) return null;
+    return a.picked.map((i) => q.options[i]).join(", ");
+  }
+  if (q.kind === "fill-fraction" && a.kind === "fill-fraction") {
+    return `${a.picked}/${q.denominator}`;
+  }
+  return null;
+}
+
+function formatCorrectAnswer(q: Question): string {
+  if (q.kind === "mcq") {
+    return `${String.fromCharCode(65 + q.answerIndex)}. ${q.choices[q.answerIndex]}`;
+  }
+  if (q.kind === "numeric") {
+    return `${q.answer}${q.unit ? " " + q.unit : ""}`;
+  }
+  if (q.kind === "multiselect") {
+    return q.correct.map((i) => q.options[i]).join(", ");
+  }
+  if (q.kind === "fill-fraction") {
+    return `${q.correctNumerator}/${q.denominator}`;
+  }
+  return "";
 }
