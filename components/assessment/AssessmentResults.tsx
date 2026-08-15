@@ -14,7 +14,9 @@ import {
   Mail,
 } from "lucide-react";
 import type { AssessmentYear, ScoreBreakdown, Question, Answer } from "@/lib/assessment";
-import { MODULE_RECS, isCorrect } from "@/lib/assessment";
+import { MODULE_RECS, isCorrect, buildFeedback } from "@/lib/assessment";
+import { StrandRing } from "@/components/assessment/StrandRing";
+import { Lightbulb } from "lucide-react";
 import { getModule } from "@/lib/modules";
 import { getSupabaseBrowser } from "@/lib/supabase/browser";
 
@@ -62,6 +64,7 @@ export function AssessmentResults({
           await persist({
             email: u.email ?? "",
             parentName: meta.full_name ?? "",
+            userId: u.id,
           });
         }
       } else {
@@ -71,11 +74,12 @@ export function AssessmentResults({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase]);
 
-  async function persist(input: { email: string; parentName: string }) {
+  async function persist(input: { email: string; parentName: string; userId?: string }) {
     setStatus("saving");
     setError(null);
     try {
       const { error: err } = await supabase.from("assessment_results").insert({
+        user_id: input.userId ?? null,
         year,
         parent_name: input.parentName || null,
         email: input.email,
@@ -107,6 +111,12 @@ export function AssessmentResults({
     .map((slug) => getModule(slug))
     .filter((m): m is NonNullable<ReturnType<typeof getModule>> => Boolean(m))
     .slice(0, 3);
+
+  const feedback = useMemo(() => buildFeedback(year, result), [year, result]);
+  const strandEntries = Object.entries(result.perStrand) as [
+    keyof typeof result.perStrand,
+    (typeof result.perStrand)[keyof typeof result.perStrand]
+  ][];
 
   return (
     <div className="space-y-6">
@@ -143,40 +153,105 @@ export function AssessmentResults({
         </div>
       </section>
 
-      {/* Strand breakdown */}
+      {/* Overall narrative */}
       <section className="rounded-3xl bg-white p-6 shadow-soft ring-1 ring-navy-100 sm:p-8">
-        <div className="flex items-baseline justify-between">
+        <div className="flex items-start gap-3">
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-orange-500 text-white shadow-soft">
+            <Lightbulb className="h-5 w-5" />
+          </div>
           <div>
-            <div className="text-[11px] font-semibold uppercase tracking-widest text-slate-500">
-              Per-strand breakdown
+            <div className="text-[11px] font-semibold uppercase tracking-widest text-orange-600">
+              What this means
             </div>
-            <h3 className="mt-1 font-display text-lg font-semibold text-navy-800">
-              Where your child is strongest
-            </h3>
+            <p className="mt-2 text-base leading-relaxed text-navy-800">{feedback.overall}</p>
           </div>
         </div>
-        <ul className="mt-5 space-y-3">
-          {Object.entries(result.perStrand).map(([strand, s], i) => {
-            const color = ["from-sky-500 to-sky-700", "from-orange-500 to-orange-600", "from-navy-600 to-navy-800"][i % 3];
+      </section>
+
+      {/* Strand rings + per-strand feedback */}
+      <section>
+        <div className="mb-4">
+          <div className="text-[11px] font-semibold uppercase tracking-widest text-slate-500">
+            Per-strand breakdown
+          </div>
+          <h3 className="mt-1 font-display text-lg font-semibold text-navy-800">
+            Where your child is strongest
+          </h3>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {feedback.strands.map((s, i) => {
+            const stats = result.perStrand[s.strand];
             return (
-              <li key={strand}>
-                <div className="flex items-baseline justify-between text-sm">
-                  <span className="font-semibold text-navy-800">{strand}</span>
-                  <span className="text-xs text-slate-500">
-                    {s.correct}/{s.total} · <span className="font-semibold text-navy-800">{s.pct}%</span>
-                  </span>
-                </div>
-                <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-navy-50">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${s.pct}%` }}
-                    transition={{ duration: 0.9, delay: i * 0.06 }}
-                    className={`h-full rounded-full bg-gradient-to-r ${color}`}
-                  />
-                </div>
-              </li>
+              <StrandRing
+                key={s.strand + i}
+                label={s.strand}
+                pct={stats.pct}
+                correct={stats.correct}
+                total={stats.total}
+                tone={s.tone}
+                headline={s.headline}
+              />
             );
           })}
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          {feedback.strands.map((s) => (
+            <div
+              key={"body-" + s.strand}
+              className="rounded-2xl bg-white p-4 text-xs leading-relaxed text-slate-700 ring-1 ring-navy-100 shadow-soft"
+            >
+              {s.body}
+            </div>
+          ))}
+        </div>
+
+        {/* Bar chart summary underneath — keeps a quick visual comparison */}
+        <div className="mt-6 rounded-3xl bg-white p-6 shadow-soft ring-1 ring-navy-100">
+          <div className="text-[11px] font-semibold uppercase tracking-widest text-slate-500">
+            Comparison at a glance
+          </div>
+          <ul className="mt-4 space-y-3">
+            {strandEntries.map(([strand, s], i) => {
+              const color = ["from-sky-500 to-sky-700", "from-orange-500 to-orange-600", "from-navy-600 to-navy-800"][i % 3];
+              return (
+                <li key={String(strand)}>
+                  <div className="flex items-baseline justify-between text-sm">
+                    <span className="font-semibold text-navy-800">{String(strand)}</span>
+                    <span className="text-xs text-slate-500">
+                      {s.correct}/{s.total} ·{" "}
+                      <span className="font-semibold text-navy-800">{s.pct}%</span>
+                    </span>
+                  </div>
+                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-navy-50">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${s.pct}%` }}
+                      transition={{ duration: 0.9, delay: i * 0.06 }}
+                      className={`h-full rounded-full bg-gradient-to-r ${color}`}
+                    />
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </section>
+
+      {/* Next steps */}
+      <section className="rounded-3xl bg-gradient-to-br from-navy-800 via-navy-700 to-sky-800 p-6 text-white shadow-lift sm:p-8">
+        <div className="text-[11px] font-semibold uppercase tracking-widest text-sky-200">
+          Your child&rsquo;s next steps
+        </div>
+        <h3 className="mt-1 font-display text-xl font-semibold">
+          Turn this snapshot into progress
+        </h3>
+        <ul className="mt-4 space-y-2 text-sm text-navy-100">
+          {feedback.nextSteps.map((step, i) => (
+            <li key={i} className="flex items-start gap-2">
+              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-orange-400" />
+              <span dangerouslySetInnerHTML={{ __html: step.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>") }} />
+            </li>
+          ))}
         </ul>
       </section>
 
@@ -297,10 +372,10 @@ export function AssessmentResults({
               <div className="mt-4 flex flex-wrap gap-2">
                 {authed && (
                   <Link
-                    href="/portal/dashboard"
+                    href="/portal/dashboard/assessments"
                     className="inline-flex items-center gap-1.5 rounded-full bg-navy-700 px-4 py-2 text-sm font-semibold text-white hover:bg-navy-800"
                   >
-                    Go to my dashboard <ArrowRight className="h-4 w-4" />
+                    See my diagnostic history <ArrowRight className="h-4 w-4" />
                   </Link>
                 )}
                 <Link

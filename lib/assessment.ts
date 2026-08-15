@@ -390,3 +390,140 @@ export const MODULE_RECS: Record<AssessmentYear, string[]> = {
   7: ["y7-linear-equations", "y7-ratio-rate-proportion", "y7-percentages-financial"],
   9: ["y9-pythagoras-theorem", "y9-trigonometry", "y9-index-laws"],
 };
+
+// ─── Narrative feedback ────────────────────────────────────────────
+// Turns a numeric ScoreBreakdown into human-readable insight for parents.
+
+export type StrandTone = "excelling" | "solid" | "developing" | "priority" | "small-sample";
+
+export type StrandFeedback = {
+  strand: Strand;
+  tone: StrandTone;
+  headline: string;
+  body: string;
+};
+
+export type Feedback = {
+  overall: string;
+  strengths: string[];
+  focusAreas: string[];
+  strands: StrandFeedback[];
+  nextSteps: string[];
+};
+
+function toneFor(pct: number, total: number): StrandTone {
+  if (total <= 1) return "small-sample";
+  if (pct >= 90) return "excelling";
+  if (pct >= 70) return "solid";
+  if (pct >= 50) return "developing";
+  return "priority";
+}
+
+const strandBlurb: Record<Strand, Record<StrandTone, string>> = {
+  "Number & Algebra": {
+    excelling:
+      "Rock-solid with arithmetic, place value and the algebraic thinking their year level expects. Ready for extension work.",
+    solid:
+      "Confident with the year-level fundamentals. Small gaps in multi-step problems — that's the natural next step.",
+    developing:
+      "Understands the concepts but needs more practice moving from single-step to multi-step problems fluently.",
+    priority:
+      "This is the strand to focus on first. Building fluency here unlocks progress everywhere else.",
+    "small-sample":
+      "Only a small sample here — take another attempt for a fuller picture.",
+  },
+  "Measurement & Geometry": {
+    excelling:
+      "Excellent spatial reasoning and measurement fluency. Ready for composite shapes and higher-order geometry problems.",
+    solid:
+      "Comfortable with the core measurement and geometry ideas at year level.",
+    developing:
+      "Concepts are forming — practice with real-world measurement (rooms, packaging, maps) will lock this in fast.",
+    priority:
+      "Measurement and geometry need attention. Hands-on modules with area, perimeter and shape are the best next move.",
+    "small-sample":
+      "Only a small sample here — retake for a clearer signal.",
+  },
+  "Statistics & Probability": {
+    excelling:
+      "Interprets data confidently and reasons well about chance. Ready for advanced two-way tables and probability trees.",
+    solid: "Solid ability to read graphs and reason about likelihood.",
+    developing:
+      "Making sense of data displays but needs more exposure to varied chart types and probability language.",
+    priority:
+      "Data interpretation is the priority — even a weekly 'read the graph' habit at home moves the needle.",
+    "small-sample":
+      "Only a small sample here — retake for a clearer signal.",
+  },
+};
+
+const overallVerdict = (pct: number, year: AssessmentYear): string => {
+  if (pct >= 90)
+    return `An outstanding Year ${year} result — comfortably above the expected NAPLAN standard. Time to think about extension.`;
+  if (pct >= 75)
+    return `A strong Year ${year} result. Your child is tracking above the expected NAPLAN band with clear room to reach the top band.`;
+  if (pct >= 55)
+    return `A solid Year ${year} result — meeting the expected standard. With focused practice on the weaker strand, top-band progress is well within reach.`;
+  if (pct >= 35)
+    return `Approaching the Year ${year} standard. The strand breakdown below shows exactly where to focus — steady weekly practice will lift this quickly.`;
+  return `Early days for Year ${year}. That's completely normal — the pattern below tells us where to start. Consistent short sessions beat marathon study every time.`;
+};
+
+const nextStepsFor = (fb: StrandFeedback[]): string[] => {
+  const priority = fb.find((s) => s.tone === "priority" || s.tone === "developing");
+  const excelling = fb.find((s) => s.tone === "excelling");
+  const steps: string[] = [];
+  if (priority)
+    steps.push(
+      `Focus on **${priority.strand}** this term — start with the recommended modules below.`
+    );
+  if (excelling)
+    steps.push(
+      `Stretch in **${excelling.strand}** with the Advanced pathway or Olympiad-style questions.`
+    );
+  steps.push(
+    "Aim for 3–5 short (15-min) sessions per week — spaced practice beats marathon study."
+  );
+  steps.push(
+    "Retake this diagnostic in 4 weeks to see the shift — the graphs will show the movement clearly."
+  );
+  return steps;
+};
+
+export function buildFeedback(year: AssessmentYear, s: ScoreBreakdown): Feedback {
+  const strands: StrandFeedback[] = (Object.entries(s.perStrand) as [Strand, { total: number; correct: number; pct: number }][]).map(
+    ([strand, v]) => {
+      const tone = toneFor(v.pct, v.total);
+      return {
+        strand,
+        tone,
+        headline:
+          tone === "excelling"
+            ? "Excelling"
+            : tone === "solid"
+            ? "On track"
+            : tone === "developing"
+            ? "Developing"
+            : tone === "priority"
+            ? "Needs focus"
+            : "Small sample",
+        body: strandBlurb[strand][tone],
+      };
+    }
+  );
+
+  const strengths = strands
+    .filter((s) => s.tone === "excelling" || s.tone === "solid")
+    .map((s) => s.strand);
+  const focusAreas = strands
+    .filter((s) => s.tone === "developing" || s.tone === "priority")
+    .map((s) => s.strand);
+
+  return {
+    overall: overallVerdict(s.pct, year),
+    strengths,
+    focusAreas,
+    strands,
+    nextSteps: nextStepsFor(strands),
+  };
+}

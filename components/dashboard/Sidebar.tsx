@@ -17,6 +17,7 @@ import {
   LogOut,
   GraduationCap,
   Inbox,
+  Gauge,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { useIsAdmin } from "@/lib/enquiries";
@@ -24,6 +25,7 @@ import { useIsAdmin } from "@/lib/enquiries";
 const primary = [
   { label: "Overview", href: "/portal/dashboard", icon: LayoutDashboard },
   { label: "Progress", href: "/portal/dashboard/progress", icon: BookOpen },
+  { label: "Assessments", href: "/portal/dashboard/assessments", icon: Gauge },
   { label: "Homework", href: "/portal/dashboard/homework", icon: ClipboardList, badge: 3 },
   { label: "Lessons", href: "/portal/dashboard/lessons", icon: CalendarDays },
   { label: "Messages", href: "/portal/dashboard/messages", icon: MessageSquare, badge: 1 },

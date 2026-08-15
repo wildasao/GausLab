@@ -209,6 +209,7 @@ grant execute on function public.claim_admin() to authenticated;
 
 create table if not exists public.assessment_results (
   id             uuid primary key default gen_random_uuid(),
+  user_id        uuid references auth.users(id) on delete set null,
   year           int not null check (year in (3,5,7,9)),
   parent_name    text,
   email          text not null,
@@ -221,14 +222,24 @@ create table if not exists public.assessment_results (
   created_at     timestamptz not null default now()
 );
 
+-- Backfill for schemas created before user_id was added
+alter table public.assessment_results add column if not exists user_id uuid references auth.users(id) on delete set null;
+
 create index if not exists assessment_results_created_idx on public.assessment_results (created_at desc);
+create index if not exists assessment_results_user_idx    on public.assessment_results (user_id, created_at desc);
 
 alter table public.assessment_results enable row level security;
 
 drop policy if exists "assessment_results anon insert" on public.assessment_results;
 drop policy if exists "assessment_results admin read"  on public.assessment_results;
+drop policy if exists "assessment_results own read"    on public.assessment_results;
 create policy "assessment_results anon insert" on public.assessment_results
   for insert to anon, authenticated with check (true);
+-- Parents can see their own past results
+create policy "assessment_results own read" on public.assessment_results
+  for select to authenticated
+  using (user_id = auth.uid());
+-- Admins see everything
 create policy "assessment_results admin read" on public.assessment_results
   for select to authenticated
   using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
