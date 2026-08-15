@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/Container";
@@ -82,23 +81,17 @@ export default async function BlogArticle({
 
   return (
     <>
-      {/* Hero */}
+      {/* Hero — gradient only (article-level hero image is shown on the blog index) */}
       <section className={`relative overflow-hidden bg-gradient-to-br ${article.color} text-white`}>
-        {article.heroImage ? (
-          <>
-            <Image
-              src={article.heroImage}
-              alt=""
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-navy-900/85 via-navy-900/60 to-navy-900/20" />
-          </>
-        ) : (
-          <div className="absolute inset-0 bg-noise opacity-30" />
-        )}
+        <div className="absolute inset-0 bg-noise opacity-30" />
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-60"
+          style={{
+            background:
+              "radial-gradient(700px 260px at 20% 0%, rgba(255,255,255,0.18), transparent 60%), radial-gradient(600px 240px at 90% 100%, rgba(0,0,0,0.15), transparent 60%)",
+          }}
+        />
         <Container>
           <div className="relative py-14 sm:py-20">
             <Link
@@ -265,17 +258,7 @@ export default async function BlogArticle({
                     className="group flex h-full flex-col overflow-hidden rounded-3xl bg-white ring-1 ring-navy-100 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift hover:ring-sky-200"
                   >
                     <div className={`relative aspect-[16/9] w-full overflow-hidden bg-gradient-to-br ${r.color}`}>
-                      {r.heroImage ? (
-                        <Image
-                          src={r.heroImage}
-                          alt=""
-                          fill
-                          sizes="(min-width: 640px) 33vw, 100vw"
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="h-full w-full bg-noise opacity-40" />
-                      )}
+                      <div className="h-full w-full bg-noise opacity-40" />
                     </div>
                     <div className="flex flex-1 flex-col p-4">
                       <Badge tone={r.tagTone}>{r.tag}</Badge>
