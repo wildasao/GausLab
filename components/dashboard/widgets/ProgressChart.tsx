@@ -22,7 +22,18 @@ export function ProgressChart({
     const max = 100;
     const innerW = WIDTH - PAD.l - PAD.r;
     const innerH = HEIGHT - PAD.t - PAD.b;
-    const step = innerW / (data.length - 1);
+    const ticks = [50, 60, 70, 80, 90, 100].map((v) => ({
+      v,
+      y: PAD.t + innerH - ((v - min) / (max - min)) * innerH,
+    }));
+
+    // Empty data is a valid initial state (loading / no attempts yet) —
+    // return an empty shape rather than throwing.
+    if (!data || data.length === 0) {
+      return { linePath: "", areaPath: "", points: [] as { x: number; y: number; week: string; value: number }[], ticks };
+    }
+
+    const step = data.length === 1 ? 0 : innerW / (data.length - 1);
     const points = data.map((d, i) => {
       const x = PAD.l + i * step;
       const y = PAD.t + innerH - ((d.value - min) / (max - min)) * innerH;
@@ -31,14 +42,9 @@ export function ProgressChart({
     const linePath = points
       .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`)
       .join(" ");
-    const areaPath =
-      `${linePath} L ${points[points.length - 1].x} ${HEIGHT - PAD.b} L ${points[0].x} ${
-        HEIGHT - PAD.b
-      } Z`;
-    const ticks = [50, 60, 70, 80, 90, 100].map((v) => ({
-      v,
-      y: PAD.t + innerH - ((v - min) / (max - min)) * innerH,
-    }));
+    const first = points[0];
+    const last = points[points.length - 1];
+    const areaPath = `${linePath} L ${last.x} ${HEIGHT - PAD.b} L ${first.x} ${HEIGHT - PAD.b} Z`;
     return { linePath, areaPath, points, ticks };
   }, [data]);
 

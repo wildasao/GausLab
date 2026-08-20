@@ -48,6 +48,14 @@ export default function ProgressPage() {
   const firstName = activeStudent?.name.split(" ")[0] ?? "Student";
   const [strandFilter, setStrandFilter] = useState<Strand | "All">("All");
 
+  if (data.loading) {
+    return (
+      <div className="grid min-h-[40vh] place-items-center">
+        <div className="text-sm text-slate-500">Loading progress…</div>
+      </div>
+    );
+  }
+
   const filteredModules = useMemo(
     () => (strandFilter === "All" ? data.modules : data.modules.filter((m) => m.strand === strandFilter)),
     [data.modules, strandFilter]
