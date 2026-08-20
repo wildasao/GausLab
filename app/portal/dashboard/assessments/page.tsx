@@ -280,6 +280,11 @@ function TrendCard({ year, attempts }: { year: AssessmentYear; attempts: PastRes
   const PAD = { l: 32, r: 16, t: 20, b: 28 };
   const innerW = W - PAD.l - PAD.r;
   const innerH = H - PAD.t - PAD.b;
+
+  // Belt-and-braces: parent only renders us with attempts.length >= 2, but if
+  // that ever changes we don't want an undefined subscript to crash the tree.
+  if (attempts.length === 0) return null;
+
   const points = attempts.map((a, i) => {
     const x = attempts.length === 1 ? PAD.l : PAD.l + (i / (attempts.length - 1)) * innerW;
     const y = PAD.t + innerH - (a.scorePct / 100) * innerH;
