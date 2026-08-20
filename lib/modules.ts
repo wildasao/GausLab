@@ -1908,6 +1908,1756 @@ export const MODULES: Module[] = [
       },
     ],
   },
+
+  // ─────────────────────────────────────────────────────────────
+  // YEAR 3 · CURRICULUM EXPANSION (compact study modules)
+  // ─────────────────────────────────────────────────────────────
+  {
+    slug: "y3-addition-subtraction",
+    title: "Addition & Subtraction",
+    subtitle: "Regrouping across columns and estimating totals.",
+    year: 3,
+    strand: "Number & Algebra",
+    minutes: 20,
+    color: "from-sky-500 to-sky-700",
+    overview:
+      "Fluent addition and subtraction with regrouping — the workhorse operations behind every Year 3 numeracy task.",
+    outcomes: [
+      "Add and subtract 3-digit numbers with regrouping",
+      "Estimate sums by rounding to the nearest 10",
+      "Solve one-step word problems using +/−",
+      "Check by using the inverse operation",
+    ],
+    learningApproach:
+      "Column method with place-value scaffolding; check by inverse each time. Regrouping is taught with concrete blocks first.",
+    cognitiveTip:
+      "Common mistake to avoid: forgetting to regroup across a zero. Always work column by column, right to left.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Column method fluency",
+        intro:
+          "Line up ones, tens and hundreds. Work right to left. Carry when a column ≥ 10; borrow when you can't subtract.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "example",
+            problem: "268 + 157 = ?",
+            steps: [
+              "Ones: 8 + 7 = 15 → write 5, carry 1.",
+              "Tens: 6 + 5 + 1 = 12 → write 2, carry 1.",
+              "Hundreds: 2 + 1 + 1 = 4.",
+            ],
+            answer: "425",
+          },
+          {
+            kind: "tip",
+            body:
+              "**Common mistake:** forgetting to regroup across a zero (e.g. 503 − 178). Always borrow step by step.",
+          },
+          {
+            kind: "numeric",
+            prompt: "Solve: 503 − 178",
+            answer: 325,
+            explanation:
+              "Borrow twice: 503 → 4 hundreds, 9 tens, 13 ones. 13−8=5, 9−7=2, 4−1=3 → 325.",
+            hint: "Borrow from the tens; the tens borrow from the hundreds.",
+          },
+          {
+            kind: "mcq",
+            prompt: "Estimate 397 + 218 by rounding each to the nearest 10.",
+            choices: ["600", "610", "620", "630"],
+            answerIndex: 2,
+            explanation: "397 → 400, 218 → 220. 400 + 220 = 620.",
+            hint: "Round each number first, then add.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y3-division-sharing",
+    title: "Division as Equal Sharing",
+    subtitle: "The inverse of multiplication — sharing into equal groups.",
+    year: 3,
+    strand: "Number & Algebra",
+    minutes: 20,
+    color: "from-emerald-500 to-emerald-600",
+    overview:
+      "Division is either sharing equally or grouping. Both link straight back to multiplication facts.",
+    outcomes: [
+      "Recognise division as equal sharing or equal grouping",
+      "Solve division facts using known multiplication facts",
+      "Interpret division word problems",
+      "Recognise the ÷ symbol and its equivalence to × inverse",
+    ],
+    learningApproach:
+      "Every division fact is a multiplication fact in disguise: 24 ÷ 6 = 4 because 6 × 4 = 24.",
+    cognitiveTip:
+      "Common mistake: choosing multiplication when the wording is really about equal sharing.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Share or group?",
+        intro: "Two ways to think about division — both give the same answer.",
+        phase: "concrete",
+        blocks: [
+          {
+            kind: "theory",
+            body:
+              "**Sharing:** 12 lollies shared between 3 friends → each gets 12 ÷ 3 = 4.\n**Grouping:** 12 lollies grouped in 3s → makes 12 ÷ 3 = 4 groups.",
+          },
+          {
+            kind: "example",
+            problem: "24 ÷ 6 = ?",
+            steps: [
+              "Ask: 6 × ? = 24.",
+              "6 × 4 = 24.",
+              "So 24 ÷ 6 = 4.",
+            ],
+            answer: "4",
+          },
+          {
+            kind: "numeric",
+            prompt: "36 students form teams of 4. How many teams?",
+            answer: 9,
+            explanation: "36 ÷ 4 = 9 (because 4 × 9 = 36).",
+            hint: "Ask: 4 × ? = 36.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y3-fractions-intro",
+    title: "Fractions of a Whole (Intro)",
+    subtitle: "Halves, quarters and eighths — with pictures first.",
+    year: 3,
+    strand: "Number & Algebra",
+    minutes: 20,
+    color: "from-orange-500 to-orange-600",
+    overview:
+      "The Year 3 introduction to fractions: equal parts of a whole, and simple fractions of a group.",
+    outcomes: [
+      "Recognise ½, ⅓, ¼, ⅛ visually",
+      "Find simple fractions of a group",
+      "Recognise 2/4 and ½ as the same amount",
+      "Compare simple unit fractions",
+    ],
+    learningApproach:
+      "Fractions must be seen before they are written. Fold paper, share pizza, count halves — then write the symbol.",
+    cognitiveTip:
+      "Common mistake: treating unequal parts as fractions. The parts must be equal!",
+    lessons: [
+      {
+        id: "l1",
+        title: "Equal parts",
+        intro:
+          "A fraction only works when the whole is split into equal parts. Otherwise it isn't really a fraction.",
+        phase: "concrete",
+        blocks: [
+          {
+            kind: "theory",
+            body:
+              "**Denominator** = how many equal parts the whole is split into.\n**Numerator** = how many of those parts we take.\n\n¼ means: split into 4 equal parts, take 1.",
+          },
+          {
+            kind: "mcq",
+            prompt: "12 apples shared between 3 friends. What fraction does each friend get?",
+            choices: ["1/2", "1/3", "1/4", "1/12"],
+            answerIndex: 1,
+            explanation: "One out of three friends → each gets 1/3.",
+            hint: "How many friends are sharing? That's the denominator.",
+          },
+          {
+            kind: "numeric",
+            prompt: "Half of 20 is what?",
+            answer: 10,
+            explanation: "Split 20 into 2 equal parts → 10 each.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y3-money",
+    title: "Money & Change",
+    subtitle: "Australian coins, notes, totals and change.",
+    year: 3,
+    strand: "Number & Algebra",
+    minutes: 20,
+    color: "from-emerald-500 to-emerald-600",
+    overview:
+      "Handling money is decimal arithmetic dressed up. Y3 focuses on totals and change, using real Australian denominations.",
+    outcomes: [
+      "Identify coins and notes ($0.05 to $100)",
+      "Add and subtract money amounts",
+      "Calculate change from a given amount",
+      "Solve simple shopping word problems",
+    ],
+    learningApproach:
+      "Real coins and pretend shopping cement money faster than any worksheet. Encourage 'shopkeeper' role play.",
+    cognitiveTip:
+      "Common mistake: ignoring decimal place value in money. $7.5 is not $7 and 5c — it's $7 and 50c.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Totals and change",
+        intro: "Add up prices, then subtract from what you paid to find the change.",
+        phase: "applied",
+        blocks: [
+          {
+            kind: "example",
+            problem: "$7.50 + $3.20 = ?  Change from $20?",
+            steps: [
+              "Total: $7.50 + $3.20 = $10.70.",
+              "Change: $20.00 − $10.70 = $9.30.",
+            ],
+            answer: "Total $10.70, change $9.30",
+          },
+          {
+            kind: "numeric",
+            prompt:
+              "An ice cream costs $4.60. You pay with $10. What is your change, in dollars?",
+            answer: 5.4,
+            tolerance: 0.01,
+            unit: "$",
+            explanation: "$10.00 − $4.60 = $5.40.",
+            hint: "Subtract the price from what you paid.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y3-measurement-basics",
+    title: "Measurement Basics",
+    subtitle: "Length, mass, capacity and time in Australian units.",
+    year: 3,
+    strand: "Measurement & Geometry",
+    minutes: 20,
+    color: "from-sky-500 to-sky-700",
+    overview:
+      "Introduces the metric units children will use for the rest of school — plus reading time to the minute.",
+    outcomes: [
+      "Choose sensible units for length, mass and capacity",
+      "Convert between mm/cm/m and g/kg (whole-number only)",
+      "Read time to the nearest 5 minutes",
+      "Calculate simple elapsed time",
+    ],
+    learningApproach:
+      "Estimate first, then measure. Estimation builds a physical sense of size — a superpower for later maths.",
+    cognitiveTip:
+      "Common mistake: mixing units without converting (e.g. adding 3 m + 40 cm as if they're the same).",
+    lessons: [
+      {
+        id: "l1",
+        title: "Units & conversions",
+        intro: "Same-sized things get compared with the same unit. Convert first if needed.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "theory",
+            body:
+              "**Length:** 1 m = 100 cm. 1 cm = 10 mm. 1 km = 1000 m.\n**Mass:** 1 kg = 1000 g.\n**Capacity:** 1 L = 1000 mL.",
+          },
+          {
+            kind: "numeric",
+            prompt: "How many centimetres in 2 metres?",
+            answer: 200,
+            unit: "cm",
+            explanation: "1 m = 100 cm, so 2 m = 200 cm.",
+          },
+          {
+            kind: "mcq",
+            prompt: "It is 2:15pm. What time is it 45 minutes later?",
+            choices: ["2:45pm", "3:00pm", "3:15pm", "3:30pm"],
+            answerIndex: 1,
+            explanation: "2:15pm + 45min = 3:00pm.",
+            hint: "45 min from :15 = :60 = next hour.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y3-shapes-space",
+    title: "2D Shapes & 3D Objects",
+    subtitle: "Naming shapes by properties, not just by look.",
+    year: 3,
+    strand: "Measurement & Geometry",
+    minutes: 20,
+    color: "from-navy-600 to-navy-800",
+    overview:
+      "Move from identifying shapes visually to describing them by properties — sides, corners, faces.",
+    outcomes: [
+      "Name common 2D shapes and their properties",
+      "Name common 3D objects and their faces/edges/vertices",
+      "Recognise symmetry lines",
+      "Map 2D nets to 3D objects",
+    ],
+    learningApproach:
+      "Play with paper nets and blocks. Learn the vocabulary alongside the object, not from a book.",
+    cognitiveTip:
+      "Common mistake: identifying shapes only by appearance. A shape's *properties* are what matter.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Properties over pictures",
+        intro:
+          "A square is not just 'square-shaped'. It has 4 equal sides and 4 right angles. Those are its properties.",
+        phase: "concrete",
+        blocks: [
+          {
+            kind: "theory",
+            body:
+              "**2D examples:** triangle (3 sides), quadrilateral (4 sides), pentagon (5), hexagon (6).\n**3D examples:** cube (6 square faces), sphere (0 flat faces), cylinder (2 circular + 1 curved).",
+          },
+          {
+            kind: "mcq",
+            prompt: "How many faces does a cube have?",
+            choices: ["4", "6", "8", "12"],
+            answerIndex: 1,
+            explanation: "A cube has 6 identical square faces (top, bottom, 4 sides).",
+            hint: "Count the sides of a die (which is a cube).",
+          },
+          {
+            kind: "numeric",
+            prompt:
+              "A pentagon has how many sides?",
+            answer: 5,
+            explanation: "Pentagon = 5 sides (from Greek *penta* = five).",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y3-patterns",
+    title: "Patterns & Rules",
+    subtitle: "Find the rule, continue the sequence.",
+    year: 3,
+    strand: "Number & Algebra",
+    minutes: 15,
+    color: "from-orange-500 to-orange-600",
+    overview:
+      "Every pattern has a rule. Finding it is a mini-detective game — and the foundation of early algebra.",
+    outcomes: [
+      "Identify a rule from the first few terms of a pattern",
+      "Continue an arithmetic sequence",
+      "Recognise a multiplicative pattern",
+      "Describe a rule in words",
+    ],
+    learningApproach:
+      "Look at what CHANGES between terms. Say the rule aloud in plain English before writing it down.",
+    cognitiveTip:
+      "Common mistake: assuming every pattern uses addition. Check for multiplication or subtraction too.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Spot the rule",
+        intro:
+          "Compare each number to the next. What did someone DO to get from one to the next?",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "example",
+            problem: "Continue the pattern: 4, 7, 10, 13, ?",
+            steps: [
+              "Difference: 7−4 = 3.",
+              "Check next: 10−7 = 3 ✓ ; 13−10 = 3 ✓.",
+              "Rule: add 3. Next term: 13 + 3 = 16.",
+            ],
+            answer: "16",
+          },
+          {
+            kind: "numeric",
+            prompt: "What's the next number in: 3, 6, 12, 24, ?",
+            answer: 48,
+            explanation: "Each term doubles. 24 × 2 = 48.",
+            hint: "Try dividing consecutive terms.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y3-data-chance",
+    title: "Data & Chance",
+    subtitle: "Reading picture graphs, describing likelihood in words.",
+    year: 3,
+    strand: "Statistics & Probability",
+    minutes: 15,
+    color: "from-sky-500 to-sky-700",
+    overview:
+      "Y3 statistics is about reading data displays. Y3 chance is about describing likelihood in words.",
+    outcomes: [
+      "Read information from picture graphs and simple tables",
+      "Compare quantities in a graph",
+      "Use the language of chance (certain, likely, unlikely, impossible)",
+      "Order everyday events by likelihood",
+    ],
+    learningApproach:
+      "Start with real classroom surveys — favourite fruit, birthday months. Graphs about YOUR class stick.",
+    cognitiveTip:
+      "Common mistake: confusing 'most common' with 'most likely to happen again'. Data describes what already happened.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Reading graphs and talking chance",
+        intro: "A graph turns numbers into a picture. Chance words describe how likely something is.",
+        phase: "concrete",
+        blocks: [
+          {
+            kind: "mcq",
+            prompt:
+              "8 students chose apples, 5 chose bananas. Which is more common?",
+            choices: ["Apples", "Bananas", "Same", "Can't tell"],
+            answerIndex: 0,
+            explanation: "8 > 5, so apples were chosen more often.",
+            hint: "Which number is bigger?",
+          },
+          {
+            kind: "mcq",
+            prompt:
+              "Which describes the chance the sun will rise tomorrow?",
+            choices: ["Impossible", "Unlikely", "Even chance", "Certain"],
+            answerIndex: 3,
+            explanation: "The sun rising is certain — it always happens.",
+            hint: "Does the sun always rise?",
+          },
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // YEAR 5 · CURRICULUM EXPANSION
+  // ─────────────────────────────────────────────────────────────
+  {
+    slug: "y5-place-value-big",
+    title: "Place Value: Big Numbers",
+    subtitle: "Reading, writing and comparing numbers into the millions.",
+    year: 5,
+    strand: "Number & Algebra",
+    minutes: 20,
+    color: "from-emerald-500 to-emerald-600",
+    overview:
+      "Y5 extends place value beyond thousands. Comfort with 5- and 6-digit numbers is essential for later multiplication and money problems.",
+    outcomes: [
+      "Read and write numbers up to 1,000,000",
+      "Compare and order large numbers",
+      "Partition using expanded form",
+      "Round to nearest 10, 100, 1000",
+    ],
+    learningApproach:
+      "Group digits in threes to make reading easy: 1|234|567 = 'one million, two hundred and thirty-four thousand, five hundred and sixty-seven'.",
+    cognitiveTip:
+      "Common mistake: misreading zeros as missing place values. Every zero holds a place open.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Big numbers made easy",
+        intro: "Split the digits into groups of three — thousands, then millions.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "example",
+            problem: "Write 45,306 in expanded form.",
+            steps: [
+              "40,000 (4 in ten-thousands)",
+              "5,000 (5 in thousands)",
+              "300 (3 in hundreds)",
+              "0 tens, 6 ones.",
+              "= 40,000 + 5,000 + 300 + 6",
+            ],
+            answer: "40,000 + 5,000 + 300 + 6",
+          },
+          {
+            kind: "numeric",
+            prompt: "Round 46,782 to the nearest 1,000.",
+            answer: 47000,
+            explanation: "Hundreds digit is 7 (≥5) → round up: 46,782 → 47,000.",
+            hint: "Look at the hundreds digit.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y5-operations-order",
+    title: "Operations & Order (BIDMAS)",
+    subtitle: "Do brackets and multiplication BEFORE addition.",
+    year: 5,
+    strand: "Number & Algebra",
+    minutes: 20,
+    color: "from-sky-500 to-sky-700",
+    overview:
+      "Order of operations makes maths unambiguous. Multi-step problems only work if everyone agrees on the order.",
+    outcomes: [
+      "Apply BIDMAS (Brackets, Indices, Divide/Multiply, Add/Subtract)",
+      "Solve multi-step arithmetic problems",
+      "Recognise when brackets change the answer",
+      "Use inverse operations to check",
+    ],
+    learningApproach:
+      "BIDMAS is a rule everyone follows so we all get the same answer. Say the acronym out loud each time.",
+    cognitiveTip:
+      "Common mistake: working left-to-right without checking for brackets or multiplication first.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Order matters",
+        intro: "BIDMAS = Brackets → Indices → Divide/Multiply → Add/Subtract.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "example",
+            problem: "Compute 4 × 25 + 10",
+            steps: [
+              "Multiplication first: 4 × 25 = 100.",
+              "Then add: 100 + 10 = 110.",
+            ],
+            answer: "110",
+          },
+          {
+            kind: "numeric",
+            prompt: "Compute (5 + 3) × 4",
+            answer: 32,
+            explanation: "Brackets first: 5+3 = 8. Then 8 × 4 = 32.",
+            hint: "Do what's in the brackets first.",
+          },
+          {
+            kind: "mcq",
+            prompt: "Compute 20 − 6 ÷ 2",
+            choices: ["7", "12", "13", "17"],
+            answerIndex: 3,
+            explanation: "Division before subtraction: 6 ÷ 2 = 3. Then 20 − 3 = 17.",
+            hint: "Divide before you subtract.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y5-measurement-conversion",
+    title: "Measurement Conversions",
+    subtitle: "Metric conversions and duration calculations.",
+    year: 5,
+    strand: "Measurement & Geometry",
+    minutes: 20,
+    color: "from-orange-500 to-orange-600",
+    overview:
+      "Practical measurement — from converting units cleanly to reading train timetables and calculating duration.",
+    outcomes: [
+      "Convert between mm/cm/m/km and g/kg",
+      "Compute elapsed time across the hour",
+      "Read and interpret timetables",
+      "Choose sensible units for a task",
+    ],
+    learningApproach:
+      "For unit conversions, ask: 'Is the new unit BIGGER or smaller than the old one?' Then multiply or divide accordingly.",
+    cognitiveTip:
+      "Common mistake: converting in the wrong direction. Sanity-check: converting to a bigger unit gives a smaller number.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Convert with confidence",
+        intro: "Same amount, different unit — the number just resizes.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "numeric",
+            prompt: "3 m = ? cm",
+            answer: 300,
+            unit: "cm",
+            explanation: "1 m = 100 cm. 3 × 100 = 300 cm.",
+          },
+          {
+            kind: "numeric",
+            prompt: "2,500 g = ? kg (decimal)",
+            answer: 2.5,
+            tolerance: 0.01,
+            unit: "kg",
+            explanation: "1 kg = 1,000 g. 2500 ÷ 1000 = 2.5 kg.",
+            hint: "Divide by 1000.",
+          },
+          {
+            kind: "mcq",
+            prompt:
+              "A train leaves at 9:45am and arrives at 11:20am. How long is the trip?",
+            choices: ["1 h 25 min", "1 h 35 min", "1 h 45 min", "2 h 25 min"],
+            answerIndex: 1,
+            explanation:
+              "9:45 → 10:45 = 1h. 10:45 → 11:20 = 35 min. Total 1h 35min.",
+            hint: "Count hours first, then the extra minutes.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y5-angles-shapes",
+    title: "Angles & Shape Properties",
+    subtitle: "Classifying angles and measuring with a protractor.",
+    year: 5,
+    strand: "Measurement & Geometry",
+    minutes: 20,
+    color: "from-navy-600 to-navy-800",
+    overview:
+      "Angles describe turns. Y5 classifies angles and measures them accurately with a protractor.",
+    outcomes: [
+      "Classify angles (acute, right, obtuse, straight, reflex)",
+      "Measure angles with a protractor to the nearest degree",
+      "Recognise angle properties of common shapes",
+      "Use appropriate vocabulary",
+    ],
+    learningApproach:
+      "Estimate first, then measure. A right angle is 90° — it becomes an anchor for all other estimates.",
+    cognitiveTip:
+      "Common mistake: reading the wrong scale on a protractor. Line up the base, then read the scale that starts at 0° on your side.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Angle vocabulary",
+        intro: "Every angle is either acute (<90°), right (=90°), obtuse (90–180°), straight (=180°) or reflex (>180°).",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "theory",
+            body:
+              "**Acute** < 90° · **Right** = 90° · **Obtuse** 90°–180° · **Straight** = 180° · **Reflex** > 180°",
+          },
+          {
+            kind: "mcq",
+            prompt: "An angle of 135° is called what?",
+            choices: ["Acute", "Right", "Obtuse", "Reflex"],
+            answerIndex: 2,
+            explanation: "Between 90° and 180° is obtuse.",
+            hint: "It's bigger than a right angle but smaller than straight.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y5-coordinates-transformations",
+    title: "Coordinates & Transformations",
+    subtitle: "Plotting points and describing translations, reflections & rotations.",
+    year: 5,
+    strand: "Measurement & Geometry",
+    minutes: 20,
+    color: "from-sky-500 to-sky-700",
+    overview:
+      "Coordinates give every point on the plane a unique address. Transformations describe how shapes move.",
+    outcomes: [
+      "Plot points on a coordinate grid",
+      "Describe translations, reflections and rotations",
+      "Predict a transformed shape's position",
+      "Use (x, y) notation correctly",
+    ],
+    learningApproach:
+      "Say '(x is across, y is up)' every time. That rhythm prevents the classic axis-swap error.",
+    cognitiveTip:
+      "Common mistake: swapping x and y. Always read across before up.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Points & moves",
+        intro: "(x, y) means: go x across, then y up.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "visual",
+            name: "coordinate-plane",
+            props: { start: [3, 2] },
+          },
+          {
+            kind: "mcq",
+            prompt:
+              "Point A is at (2, 3). Translate 3 right and 1 down. New coordinates?",
+            choices: ["(5, 4)", "(5, 2)", "(3, 5)", "(2, 1)"],
+            answerIndex: 1,
+            explanation: "x: 2+3=5. y: 3−1=2. New = (5, 2).",
+            hint: "Add to x for right, subtract from y for down.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y5-patterns-sequences",
+    title: "Patterns & Sequences",
+    subtitle: "Growing sequences and expressing rules more generally.",
+    year: 5,
+    strand: "Number & Algebra",
+    minutes: 15,
+    color: "from-orange-500 to-orange-600",
+    overview:
+      "Y5 extends pattern-spotting into growing sequences and starts building the language of algebra.",
+    outcomes: [
+      "Find the rule of a sequence with two operations",
+      "Describe growing patterns numerically and visually",
+      "Continue a pattern beyond a few terms",
+      "Recognise linear vs multiplicative growth",
+    ],
+    learningApproach:
+      "For a rule that fits ALL terms, test it on at least 3 of them — one instance isn't enough.",
+    cognitiveTip:
+      "Common mistake: finding a rule that only works for the first step. Test on more terms.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Finding a general rule",
+        intro: "Test the rule against multiple terms — if it fails once, it isn't the right rule.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "example",
+            problem: "Continue: 3, 6, 12, 24, ?",
+            steps: [
+              "Try × 2: 3×2=6 ✓, 6×2=12 ✓, 12×2=24 ✓.",
+              "Rule: multiply by 2. Next: 48.",
+            ],
+            answer: "48",
+          },
+          {
+            kind: "numeric",
+            prompt: "What's the 5th term of: 5, 8, 11, 14, ?",
+            answer: 17,
+            explanation: "Add 3 each time. 14 + 3 = 17.",
+            hint: "Find the difference between consecutive terms.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y5-data-probability",
+    title: "Data & Probability (Y5)",
+    subtitle: "Line and dot plots, chance as a fraction.",
+    year: 5,
+    strand: "Statistics & Probability",
+    minutes: 20,
+    color: "from-navy-600 to-navy-800",
+    overview:
+      "Y5 introduces varied data displays (line, dot, column) and expresses chance numerically as a fraction.",
+    outcomes: [
+      "Read line, dot and column plots",
+      "Choose an appropriate display for a dataset",
+      "Express probability as a fraction between 0 and 1",
+      "Identify equally-likely outcomes",
+    ],
+    learningApproach:
+      "Every graph tells a story. Ask 'what's the biggest, smallest, and what changed?' as a habit.",
+    cognitiveTip:
+      "Common mistake: assuming a 'likely' event must happen. Likely means MORE probable, not certain.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Fraction probabilities",
+        intro: "Probability = favourable outcomes ÷ total equally-likely outcomes.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "mcq",
+            prompt: "You roll a fair 6-sided die. Probability of rolling a 4?",
+            choices: ["1/2", "1/3", "1/4", "1/6"],
+            answerIndex: 3,
+            explanation: "1 favourable outcome (rolling 4) out of 6 equally likely = 1/6.",
+            hint: "How many sides? How many are a 4?",
+          },
+          {
+            kind: "numeric",
+            prompt:
+              "In a bag: 3 red, 2 blue. Probability of drawing red? (Decimal, 2 dp)",
+            answer: 0.6,
+            tolerance: 0.01,
+            explanation: "3 red out of 5 total = 3/5 = 0.6.",
+            hint: "Red divided by total.",
+          },
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // YEAR 7 · CURRICULUM EXPANSION
+  // ─────────────────────────────────────────────────────────────
+  {
+    slug: "y7-integers",
+    title: "Integers & Number Properties",
+    subtitle: "Positive and negative whole numbers, factors and multiples.",
+    year: 7,
+    strand: "Number & Algebra",
+    minutes: 20,
+    color: "from-emerald-500 to-emerald-600",
+    overview:
+      "Y7 introduces negative numbers and the vocabulary of divisibility — factors, multiples, primes.",
+    outcomes: [
+      "Add and subtract integers",
+      "Multiply and divide with sign rules",
+      "Find factors and multiples of small numbers",
+      "Recognise prime and composite numbers",
+    ],
+    learningApproach:
+      "The number line makes integers visual. For sign rules, say them out loud: 'same signs make positive, different signs make negative'.",
+    cognitiveTip:
+      "Common mistake: losing track of negative signs. Rewrite subtraction as adding a negative.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Working with integers",
+        intro: "Below zero is a real place. −3 is less than −1.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "numeric",
+            prompt: "Compute: −3 + 7",
+            answer: 4,
+            explanation: "Move 7 places right from −3 → 4.",
+            hint: "Start at −3, count up 7.",
+          },
+          {
+            kind: "mcq",
+            prompt: "Which is a factor of 12?",
+            choices: ["5", "7", "8", "6"],
+            answerIndex: 3,
+            explanation: "12 ÷ 6 = 2 exactly. So 6 is a factor. (5, 7, 8 don't divide evenly.)",
+            hint: "A factor divides the number with no remainder.",
+          },
+          {
+            kind: "mcq",
+            prompt: "Which number is prime?",
+            choices: ["9", "15", "17", "21"],
+            answerIndex: 2,
+            explanation: "17 has only 1 and itself as factors. 9=3², 15=3×5, 21=3×7.",
+            hint: "A prime has exactly TWO factors: 1 and itself.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y7-fdp-conversions",
+    title: "Fractions ↔ Decimals ↔ Percentages",
+    subtitle: "Fluent conversion between the three representations.",
+    year: 7,
+    strand: "Number & Algebra",
+    minutes: 20,
+    color: "from-sky-500 to-sky-700",
+    overview:
+      "Fractions, decimals and percentages are three ways to say the same thing. Y7 makes moving between them second nature.",
+    outcomes: [
+      "Convert any fraction to a decimal and percent",
+      "Recognise recurring decimals",
+      "Order mixed representations",
+      "Calculate a fraction/decimal/% of an amount",
+    ],
+    learningApproach:
+      "Memorise the top common conversions (1/2=0.5=50%, 1/4=0.25=25%, 1/5=0.2=20%). Everything else follows.",
+    cognitiveTip:
+      "Common mistake: forgetting to divide by 100 when converting % to a decimal for a calculation.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Three names, one number",
+        intro: "0.35 = 35% = 35/100 = 7/20. All the same amount.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "numeric",
+            prompt: "Convert 3/8 to a decimal (3 dp).",
+            answer: 0.375,
+            tolerance: 0.001,
+            explanation: "3 ÷ 8 = 0.375.",
+          },
+          {
+            kind: "numeric",
+            prompt: "20% of 80",
+            answer: 16,
+            explanation: "20% = 0.2. 0.2 × 80 = 16.",
+            hint: "20% is one fifth.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y7-indices-squares",
+    title: "Indices & Square Numbers",
+    subtitle: "Repeated multiplication in shorthand.",
+    year: 7,
+    strand: "Number & Algebra",
+    minutes: 15,
+    color: "from-orange-500 to-orange-600",
+    overview:
+      "Y7 introduces exponent notation — 3² means 3 × 3, not 3 × 2. Foundational for Y9 index laws.",
+    outcomes: [
+      "Evaluate small powers",
+      "Recognise perfect squares to 100",
+      "Distinguish 3² from 3 × 2",
+      "Find square roots of perfect squares",
+    ],
+    learningApproach:
+      "Say 'three squared means three multiplied by itself'. Say it out loud until it's automatic.",
+    cognitiveTip:
+      "Common mistake: interpreting 3² as 3 × 2 (=6). It's 3 × 3 = 9.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Powers made simple",
+        intro: "The small number tells you how many times to multiply.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "numeric",
+            prompt: "Compute 2³",
+            answer: 8,
+            explanation: "2 × 2 × 2 = 8.",
+          },
+          {
+            kind: "numeric",
+            prompt: "√64 (positive root only)",
+            answer: 8,
+            explanation: "8 × 8 = 64. So √64 = 8.",
+            hint: "What number multiplied by itself is 64?",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y7-algebraic-expressions",
+    title: "Algebraic Expressions",
+    subtitle: "Variables, like terms and substitution.",
+    year: 7,
+    strand: "Number & Algebra",
+    minutes: 20,
+    color: "from-emerald-500 to-emerald-600",
+    overview:
+      "Variables are just letters standing in for numbers. Y7 teaches how to write, simplify and evaluate expressions.",
+    outcomes: [
+      "Simplify by collecting like terms",
+      "Substitute values for variables",
+      "Recognise like vs unlike terms",
+      "Use standard notation (no × sign between letter and number)",
+    ],
+    learningApproach:
+      "Treat x as 'a box holding a number'. Collect only boxes of the same kind.",
+    cognitiveTip:
+      "Common mistake: combining unlike terms (x and x²). x² is 'x boxes each holding x' — different from a single x.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Collect and substitute",
+        intro: "Like terms have the same variable at the same power.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "mcq",
+            prompt: "Simplify 3x + 2x + 4",
+            choices: ["9x", "5x + 4", "6x + 4", "5x²"],
+            answerIndex: 1,
+            explanation: "3x + 2x = 5x. Add the constant 4: 5x + 4.",
+            hint: "Combine the terms with x. The 4 stands alone.",
+          },
+          {
+            kind: "numeric",
+            prompt: "If x = 4, what is 3x + 2?",
+            answer: 14,
+            explanation: "3(4) + 2 = 12 + 2 = 14.",
+            hint: "Replace x with 4, then compute.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y7-sequences",
+    title: "Sequences & Rules",
+    subtitle: "From term-to-term rule to position-to-term.",
+    year: 7,
+    strand: "Number & Algebra",
+    minutes: 15,
+    color: "from-sky-500 to-sky-700",
+    overview:
+      "Y7 shifts from continuing patterns to describing them algebraically — a bridge to functions.",
+    outcomes: [
+      "Identify a constant difference sequence",
+      "Predict the nth term from a rule",
+      "Express a rule algebraically (simple cases)",
+      "Distinguish term number from term value",
+    ],
+    learningApproach:
+      "The 'position' is which term you're on (1st, 2nd, 3rd). The 'value' is what number appears there. Don't confuse them!",
+    cognitiveTip:
+      "Common mistake: confusing the term number (position) with the term value.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Position, value, rule",
+        intro: "The rule uses the position n to give the value.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "example",
+            problem: "Sequence: 5, 8, 11, 14, ... Find the 10th term.",
+            steps: [
+              "Rule: 3n + 2 (test: n=1 → 5 ✓)",
+              "10th term: 3(10) + 2 = 32.",
+            ],
+            answer: "32",
+          },
+          {
+            kind: "numeric",
+            prompt: "For rule Tₙ = 4n − 1, what's T₆?",
+            answer: 23,
+            explanation: "4(6) − 1 = 24 − 1 = 23.",
+            hint: "Plug 6 in for n.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y7-measurement-practical",
+    title: "Measurement in Context",
+    subtitle: "Perimeter, area, volume and unit choice.",
+    year: 7,
+    strand: "Measurement & Geometry",
+    minutes: 20,
+    color: "from-orange-500 to-orange-600",
+    overview:
+      "Y7 measurement is applied — solving real problems and choosing sensible units for the answer.",
+    outcomes: [
+      "Calculate perimeter of rectangles and composite shapes",
+      "Calculate area of rectangles, triangles, parallelograms",
+      "Calculate volume of rectangular prisms",
+      "Use appropriate units (cm, cm², cm³)",
+    ],
+    learningApproach:
+      "Always check the unit at the end. Perimeter (cm), area (cm²), volume (cm³) — the number and unit must match the concept.",
+    cognitiveTip:
+      "Common mistake: using cm instead of cm² for area. If the answer's in the wrong unit, you've solved the wrong thing.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Right formula, right unit",
+        intro: "Match the formula to what you're finding. Match the unit to the formula.",
+        phase: "applied",
+        blocks: [
+          {
+            kind: "example",
+            problem: "Rectangle 9 m × 4 m. Perimeter? Area?",
+            steps: [
+              "Perimeter = 2(L+W) = 2(9+4) = 26 m.",
+              "Area = L × W = 9 × 4 = 36 m².",
+            ],
+            answer: "Perimeter 26 m, Area 36 m²",
+          },
+          {
+            kind: "numeric",
+            prompt:
+              "Volume of a rectangular prism 5 × 4 × 3 cm (in cm³).",
+            answer: 60,
+            unit: "cm³",
+            explanation: "V = L × W × H = 5 × 4 × 3 = 60 cm³.",
+            hint: "Multiply all three dimensions.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y7-angles-parallel-lines",
+    title: "Angles & Parallel Lines",
+    subtitle: "Angle pairs and geometric reasoning.",
+    year: 7,
+    strand: "Measurement & Geometry",
+    minutes: 20,
+    color: "from-navy-600 to-navy-800",
+    overview:
+      "Y7 geometry uses angle relationships to find unknowns without measuring. This is the entry point to formal proof.",
+    outcomes: [
+      "Recognise vertically opposite, corresponding, alternate, co-interior angles",
+      "Apply angle sums (triangle = 180°, quadrilateral = 360°, straight line = 180°)",
+      "Find unknown angles with reasoning",
+      "Never trust the diagram — trust the numbers",
+    ],
+    learningApproach:
+      "Name the angle relationship before you calculate. Reasoning first, arithmetic second.",
+    cognitiveTip:
+      "Common mistake: assuming the diagram is drawn to scale. Angles that LOOK equal may not be — use the given values.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Angle rules",
+        intro: "Every unknown angle has a relationship you can name.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "theory",
+            body:
+              "**On a straight line:** angles sum to 180°.\n**Triangle:** angles sum to 180°.\n**Vertically opposite:** equal.\n**Corresponding & alternate** (parallel lines): equal.\n**Co-interior** (parallel lines): sum to 180°.",
+          },
+          {
+            kind: "numeric",
+            prompt:
+              "Two angles on a straight line. One is 65°. What is the other?",
+            answer: 115,
+            unit: "°",
+            explanation: "180° − 65° = 115°.",
+            hint: "They must sum to 180°.",
+          },
+          {
+            kind: "numeric",
+            prompt:
+              "In a triangle, two angles are 50° and 70°. The third angle?",
+            answer: 60,
+            unit: "°",
+            explanation: "180 − 50 − 70 = 60°.",
+            hint: "Triangle angles sum to 180°.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y7-coordinates-transformations",
+    title: "Cartesian Plane & Transformations",
+    subtitle: "All four quadrants and geometric moves.",
+    year: 7,
+    strand: "Measurement & Geometry",
+    minutes: 20,
+    color: "from-sky-500 to-sky-700",
+    overview:
+      "Y7 extends coordinates to negative values and formalises transformations — translations, reflections, rotations.",
+    outcomes: [
+      "Plot and read points in all 4 quadrants",
+      "Reflect points across x- or y-axis",
+      "Translate by a vector",
+      "Rotate simple shapes 90°/180°",
+    ],
+    learningApproach:
+      "For reflections, one coordinate flips sign; the other stays. Say which axis reflects which.",
+    cognitiveTip:
+      "Common mistake: reversing x and y. Always: across (x), then up (y).",
+    lessons: [
+      {
+        id: "l1",
+        title: "Moves on the plane",
+        intro: "Every geometric move can be written as coordinate arithmetic.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "visual",
+            name: "coordinate-plane",
+            props: { start: [-2, 3] },
+          },
+          {
+            kind: "mcq",
+            prompt: "Reflect (−2, 3) in the y-axis. New point?",
+            choices: ["(−2, −3)", "(2, 3)", "(2, −3)", "(−2, 3)"],
+            answerIndex: 1,
+            explanation: "Reflecting in the y-axis flips the sign of x: (−2, 3) → (2, 3).",
+            hint: "Y-axis reflection flips x.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y7-statistics",
+    title: "Statistics: Centre & Spread",
+    subtitle: "Mean, median, mode, range.",
+    year: 7,
+    strand: "Statistics & Probability",
+    minutes: 20,
+    color: "from-emerald-500 to-emerald-600",
+    overview:
+      "Y7 statistics summarises data using measures of centre (mean, median, mode) and spread (range).",
+    outcomes: [
+      "Compute mean, median, mode, range",
+      "Choose the right measure for the story",
+      "Recognise the effect of outliers on the mean",
+      "Compare two datasets",
+    ],
+    learningApproach:
+      "Mean = average, sensitive to outliers. Median = middle, robust. Mode = most common.",
+    cognitiveTip:
+      "Common mistake: dividing the total by the wrong number of values when finding the mean.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Summarising data",
+        intro: "Every measure tells a different story about the same data.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "example",
+            problem: "Data: 2, 4, 5, 9, 10. Find mean, median, range.",
+            steps: [
+              "Mean: (2+4+5+9+10)/5 = 30/5 = 6.",
+              "Median: middle value of sorted list = 5.",
+              "Range: max − min = 10 − 2 = 8.",
+            ],
+            answer: "Mean 6, Median 5, Range 8",
+          },
+          {
+            kind: "numeric",
+            prompt: "Mean of 3, 7, 8, 12, 15.",
+            answer: 9,
+            explanation: "Sum = 45. 45 / 5 = 9.",
+            hint: "Add them, divide by the count.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y7-probability",
+    title: "Probability (Y7)",
+    subtitle: "Theoretical, experimental and complementary events.",
+    year: 7,
+    strand: "Statistics & Probability",
+    minutes: 15,
+    color: "from-orange-500 to-orange-600",
+    overview:
+      "Y7 formalises probability as a number between 0 and 1 (or 0–100%).",
+    outcomes: [
+      "Express probability as a fraction/decimal/percent",
+      "Calculate P(A) for equally likely outcomes",
+      "Compute complementary events: P(not A) = 1 − P(A)",
+      "Distinguish theoretical from experimental",
+    ],
+    learningApproach:
+      "Any probability question: (1) count favourable outcomes, (2) count total outcomes, (3) divide.",
+    cognitiveTip:
+      "Common mistake: counting outcomes that are NOT equally likely as if they were.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Fair chance",
+        intro: "Probability = favourable ÷ total, when all outcomes are equally likely.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "numeric",
+            prompt: "P(rolling an even number on a fair die). Decimal (2 dp).",
+            answer: 0.5,
+            tolerance: 0.01,
+            explanation: "Even numbers: 2, 4, 6 (three out of six). 3/6 = 0.5.",
+            hint: "How many even? How many total?",
+          },
+          {
+            kind: "numeric",
+            prompt: "P(A) = 0.3. Find P(not A) as a decimal.",
+            answer: 0.7,
+            tolerance: 0.01,
+            explanation: "P(not A) = 1 − P(A) = 1 − 0.3 = 0.7.",
+            hint: "Complementary events sum to 1.",
+          },
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // YEAR 9 · CURRICULUM EXPANSION
+  // ─────────────────────────────────────────────────────────────
+  {
+    slug: "y9-real-numbers",
+    title: "Real Numbers: Rational & Irrational",
+    subtitle: "Where numbers sit on the number line.",
+    year: 9,
+    strand: "Number & Algebra",
+    minutes: 15,
+    color: "from-emerald-500 to-emerald-600",
+    overview:
+      "Y9 categorises numbers as rational (fractions/terminating/recurring decimals) or irrational (√2, π).",
+    outcomes: [
+      "Distinguish rational from irrational",
+      "Recognise recurring decimals as rational",
+      "Estimate irrational values on a number line",
+      "Simplify simple surds",
+    ],
+    learningApproach:
+      "A rational number can be written as a fraction of integers. If it can't, it's irrational.",
+    cognitiveTip:
+      "Common mistake: assuming every decimal is rational. Only terminating and recurring decimals are.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Which is which?",
+        intro: "√2, √3, π are irrational. 0.75, 0.333..., 3 are rational.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "mcq",
+            prompt: "Which is irrational?",
+            choices: ["0.75", "5/8", "√5", "0.333…"],
+            answerIndex: 2,
+            explanation: "√5 = 2.236... never repeats and can't be written as a fraction. Irrational.",
+            hint: "Which one can NOT be written as a simple fraction?",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y9-percentages-financial",
+    title: "Percentages, Ratios & Rates (Y9)",
+    subtitle: "Discounts, mark-ups, GST and best-buy problems.",
+    year: 9,
+    strand: "Number & Algebra",
+    minutes: 20,
+    color: "from-orange-500 to-orange-600",
+    overview:
+      "Y9 applies percentages, ratios and rates to real financial problems.",
+    outcomes: [
+      "Calculate % increase and decrease",
+      "Solve GST and discount problems",
+      "Compare using unit rates",
+      "Reverse-engineer a percentage change",
+    ],
+    learningApproach:
+      "Multiplier method: an increase of 20% multiplies by 1.20. A decrease of 20% multiplies by 0.80.",
+    cognitiveTip:
+      "Common mistake: subtracting 20 rather than 20% of the original amount.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Change by a percentage",
+        intro: "Multipliers are faster than adding/subtracting percentages.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "example",
+            problem: "$150 with 20% discount.",
+            steps: [
+              "Multiplier = 1 − 0.20 = 0.80.",
+              "$150 × 0.80 = $120.",
+            ],
+            answer: "$120",
+          },
+          {
+            kind: "numeric",
+            prompt: "Price after 10% GST added to $80.",
+            answer: 88,
+            unit: "$",
+            explanation: "Multiplier 1.10. 80 × 1.10 = 88.",
+            hint: "10% GST means multiply by 1.10.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y9-algebraic-expressions",
+    title: "Algebraic Expressions (Y9)",
+    subtitle: "Expand, simplify, factorise.",
+    year: 9,
+    strand: "Number & Algebra",
+    minutes: 20,
+    color: "from-sky-500 to-sky-700",
+    overview:
+      "Y9 extends Y7 algebra with expanding brackets, common factors and monic quadratic factorising.",
+    outcomes: [
+      "Expand brackets using the distributive law",
+      "Factorise by common factor",
+      "Simplify by collecting like terms",
+      "Handle negative signs correctly",
+    ],
+    learningApproach:
+      "Every term inside the bracket must be multiplied — no cheating!",
+    cognitiveTip:
+      "Common mistake: multiplying only the first term inside brackets. Every term gets multiplied.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Expanding cleanly",
+        intro: "a(b + c) = ab + ac. Every term inside gets the a.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "mcq",
+            prompt: "Expand 3(x + 4).",
+            choices: ["3x + 4", "3x + 7", "3x + 12", "3x + 4x"],
+            answerIndex: 2,
+            explanation: "3 × x = 3x. 3 × 4 = 12. Answer: 3x + 12.",
+            hint: "Multiply the 3 into BOTH terms.",
+          },
+          {
+            kind: "mcq",
+            prompt: "Factorise 6x + 12.",
+            choices: ["6(x + 2)", "6(x + 12)", "6(x) + 12", "3(x + 4)"],
+            answerIndex: 0,
+            explanation: "6 is the highest common factor. 6x = 6·x; 12 = 6·2. → 6(x+2).",
+            hint: "Find the biggest number that divides both.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y9-linear-equations-inequalities",
+    title: "Linear Equations & Inequalities",
+    subtitle: "Multi-step equations and inequality rules.",
+    year: 9,
+    strand: "Number & Algebra",
+    minutes: 20,
+    color: "from-navy-600 to-navy-800",
+    overview:
+      "Y9 extends solving to equations with variables on both sides and to inequalities (with the negative-flip rule).",
+    outcomes: [
+      "Solve equations with variables on both sides",
+      "Solve linear inequalities",
+      "Recognise the negative-flip rule",
+      "Represent solutions on a number line",
+    ],
+    learningApproach:
+      "Do the same thing to both sides — that's the ONE rule. Except when multiplying/dividing by a negative in an inequality — then flip.",
+    cognitiveTip:
+      "Common mistake: forgetting to reverse the inequality when multiplying or dividing by a negative.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Both sides, then flip",
+        intro: "Collect variables one side, numbers the other. For inequalities, watch the negatives.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "example",
+            problem: "Solve 2x + 5 = 17.",
+            steps: [
+              "Subtract 5: 2x = 12.",
+              "Divide by 2: x = 6.",
+            ],
+            answer: "x = 6",
+          },
+          {
+            kind: "numeric",
+            prompt: "Solve 5x − 3 = 2x + 12. Enter x.",
+            answer: 5,
+            explanation: "3x − 3 = 12 → 3x = 15 → x = 5.",
+            hint: "Collect variables one side, numbers the other.",
+          },
+          {
+            kind: "mcq",
+            prompt: "Solve −2x > 6.",
+            choices: ["x > 3", "x < 3", "x > −3", "x < −3"],
+            answerIndex: 3,
+            explanation: "Divide by −2 AND flip: x < −3.",
+            hint: "Dividing by negative flips the inequality.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y9-sequences-relationships",
+    title: "Sequences as Functions",
+    subtitle: "Express sequences algebraically as Tₙ.",
+    year: 9,
+    strand: "Number & Algebra",
+    minutes: 15,
+    color: "from-sky-500 to-sky-700",
+    overview:
+      "Y9 formalises sequences as functions of position, Tₙ = an + b for arithmetic sequences.",
+    outcomes: [
+      "Find the general term of an arithmetic sequence",
+      "Predict any term without listing intermediate ones",
+      "Distinguish arithmetic from geometric",
+      "Express a rule using n notation",
+    ],
+    learningApproach:
+      "For arithmetic sequences: Tₙ = a + (n−1)d, where a is the first term and d is the common difference.",
+    cognitiveTip:
+      "Common mistake: finding a numerical pattern without stating the general rule.",
+    lessons: [
+      {
+        id: "l1",
+        title: "The nth term rule",
+        intro: "You can compute any term directly if you know the rule.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "example",
+            problem: "Sequence 4, 7, 10, 13, ... Find Tₙ.",
+            steps: [
+              "First term a = 4. Common difference d = 3.",
+              "Tₙ = a + (n−1)d = 4 + 3(n−1) = 3n + 1.",
+              "Check: n=1 → 4 ✓, n=2 → 7 ✓.",
+            ],
+            answer: "Tₙ = 3n + 1",
+          },
+          {
+            kind: "numeric",
+            prompt: "For Tₙ = 3n + 1, find T₂₀.",
+            answer: 61,
+            explanation: "3(20) + 1 = 61.",
+            hint: "Plug in n = 20.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y9-measurement-scale",
+    title: "Measurement, Surface Area & Scale",
+    subtitle: "Volume, surface area and scaled drawings.",
+    year: 9,
+    strand: "Measurement & Geometry",
+    minutes: 20,
+    color: "from-orange-500 to-orange-600",
+    overview:
+      "Y9 extends measurement to surface area, composite volumes and scale problems.",
+    outcomes: [
+      "Calculate surface area of prisms",
+      "Calculate volume of prisms",
+      "Use scale factors on maps and models",
+      "Distinguish surface area from volume",
+    ],
+    learningApproach:
+      "Surface area = the wrapping paper. Volume = what fits inside. Very different measurements.",
+    cognitiveTip:
+      "Common mistake: confusing surface area with volume. Different units (cm² vs cm³) — that's your cue.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Wrap vs fill",
+        intro: "Surface area sums all faces. Volume is width × depth × height.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "example",
+            problem: "Cube of side 4 cm. Volume? Surface area?",
+            steps: [
+              "V = 4 × 4 × 4 = 64 cm³.",
+              "One face = 16 cm². 6 faces → SA = 96 cm².",
+            ],
+            answer: "V = 64 cm³, SA = 96 cm²",
+          },
+          {
+            kind: "numeric",
+            prompt: "Volume of a rectangular prism 8 × 5 × 4 cm.",
+            answer: 160,
+            unit: "cm³",
+            explanation: "8 × 5 × 4 = 160 cm³.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y9-coordinates-transformations",
+    title: "Coordinate Geometry (Y9)",
+    subtitle: "Gradient, midpoint and distance formulas.",
+    year: 9,
+    strand: "Measurement & Geometry",
+    minutes: 20,
+    color: "from-navy-600 to-navy-800",
+    overview:
+      "Y9 moves coordinates into formal geometry — gradient (slope), midpoint, distance between points.",
+    outcomes: [
+      "Calculate gradient between two points",
+      "Find midpoint of a segment",
+      "Find distance between two points",
+      "Interpret gradient as rate of change",
+    ],
+    learningApproach:
+      "Gradient = rise ÷ run. Midpoint = average of x's, average of y's. Distance = Pythagoras applied.",
+    cognitiveTip:
+      "Common mistake: subtracting coordinates in the wrong order — be consistent (always A minus B).",
+    lessons: [
+      {
+        id: "l1",
+        title: "Gradient, midpoint, distance",
+        intro: "Three formulas, all built from x/y differences.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "theory",
+            body:
+              "**Gradient** m = (y₂ − y₁) / (x₂ − x₁)\n**Midpoint** M = ((x₁+x₂)/2, (y₁+y₂)/2)\n**Distance** d = √((x₂−x₁)² + (y₂−y₁)²)",
+          },
+          {
+            kind: "numeric",
+            prompt: "Gradient from (1, 2) to (5, 10).",
+            answer: 2,
+            explanation: "(10−2)/(5−1) = 8/4 = 2.",
+            hint: "Rise over run.",
+          },
+          {
+            kind: "mcq",
+            prompt: "Midpoint of (2, 4) and (8, 10)?",
+            choices: ["(5, 7)", "(6, 6)", "(10, 14)", "(4, 8)"],
+            answerIndex: 0,
+            explanation: "Averages: (2+8)/2=5, (4+10)/2=7.",
+            hint: "Average the x's and average the y's.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y9-statistics-spread",
+    title: "Statistics: Comparing Distributions",
+    subtitle: "Quartiles, IQR and box plots.",
+    year: 9,
+    strand: "Statistics & Probability",
+    minutes: 20,
+    color: "from-emerald-500 to-emerald-600",
+    overview:
+      "Y9 goes deeper than mean and median — quartiles, IQR and box plots let you compare distributions properly.",
+    outcomes: [
+      "Compute Q1, Q3, IQR",
+      "Interpret a box plot",
+      "Compare two datasets meaningfully",
+      "Recognise skewness",
+    ],
+    learningApproach:
+      "IQR (Q3 − Q1) shows the spread of the middle 50%. It's robust — outliers don't distort it like they do the range.",
+    cognitiveTip:
+      "Common mistake: assuming a bigger mean means bigger spread. Spread and centre are different.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Quartiles & spread",
+        intro: "Quartiles divide sorted data into four equal parts.",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "example",
+            problem: "Data: 2, 4, 5, 7, 9, 12, 15. Find IQR.",
+            steps: [
+              "Q1 = median of lower half (2, 4, 5) = 4.",
+              "Q3 = median of upper half (9, 12, 15) = 12.",
+              "IQR = Q3 − Q1 = 12 − 4 = 8.",
+            ],
+            answer: "8",
+          },
+          {
+            kind: "numeric",
+            prompt:
+              "In a dataset Q1=6 and Q3=14. What is the IQR?",
+            answer: 8,
+            explanation: "IQR = Q3 − Q1 = 14 − 6 = 8.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y9-probability-complex",
+    title: "Probability: Two-Way Tables & Complements",
+    subtitle: "Multi-step chance and conditional reasoning.",
+    year: 9,
+    strand: "Statistics & Probability",
+    minutes: 20,
+    color: "from-fuchsia-500 to-fuchsia-700",
+    overview:
+      "Y9 handles more complex probability: two-way tables, complementary events and independent events.",
+    outcomes: [
+      "Compute P(A) and P(not A)",
+      "Multiply for independent events",
+      "Read two-way tables",
+      "Use Venn diagrams",
+    ],
+    learningApproach:
+      "'AND' events (both happen) — multiply. 'OR' events (either happens) — add (minus overlap).",
+    cognitiveTip:
+      "Common mistake: adding probabilities of independent events that should be multiplied.",
+    lessons: [
+      {
+        id: "l1",
+        title: "Combined events",
+        intro: "For independent events A and B: P(A and B) = P(A) × P(B).",
+        phase: "abstract",
+        blocks: [
+          {
+            kind: "numeric",
+            prompt:
+              "P(rolling a 6 on a fair die twice in a row). Fraction as decimal to 4 dp.",
+            answer: 0.0278,
+            tolerance: 0.001,
+            explanation: "P(6) = 1/6. P(6 AND 6) = 1/6 × 1/6 = 1/36 ≈ 0.0278.",
+            hint: "Independent events — multiply.",
+          },
+          {
+            kind: "numeric",
+            prompt:
+              "In a class, P(likes maths) = 0.4. Find P(does NOT like maths).",
+            answer: 0.6,
+            tolerance: 0.01,
+            explanation: "P(not A) = 1 − 0.4 = 0.6.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "y9-mathematical-reasoning",
+    title: "Mathematical Reasoning",
+    subtitle: "Estimate, calculate, check — the meta-skill.",
+    year: 9,
+    strand: "Number & Algebra",
+    minutes: 15,
+    color: "from-navy-700 to-navy-900",
+    overview:
+      "The most important Y9 module: how to APPROACH a problem you've never seen. Estimate first, calculate carefully, then sanity-check.",
+    outcomes: [
+      "Estimate before calculating",
+      "Choose a strategy from a mental toolkit",
+      "Check answer against the estimate",
+      "Recognise unreasonable answers",
+    ],
+    learningApproach:
+      "Every problem: (1) estimate the size of the answer, (2) solve exactly, (3) compare. If they disagree, something's wrong.",
+    cognitiveTip:
+      "Common mistake: accepting the calculator answer without checking. Always ask 'does this make sense?'",
+    lessons: [
+      {
+        id: "l1",
+        title: "Estimate, solve, check",
+        intro: "A 3-step habit that prevents most careless errors.",
+        phase: "applied",
+        blocks: [
+          {
+            kind: "theory",
+            body:
+              "**Step 1 — Estimate:** round numbers to something friendly.\n**Step 2 — Solve:** compute exactly.\n**Step 3 — Check:** does the exact answer match the estimate? Are the units right?",
+          },
+          {
+            kind: "example",
+            problem: "Estimate then compute 397 × 21.",
+            steps: [
+              "Estimate: 400 × 20 = 8,000.",
+              "Exact: 397 × 21 = 8,337.",
+              "Check: 8,337 ≈ 8,000 ✓ — answer is reasonable.",
+            ],
+            answer: "8,337 (estimate: ~8,000)",
+          },
+          {
+            kind: "mcq",
+            prompt:
+              "A calculator shows 476.19 as the area of a rectangle 10.5 m × 4.3 m. Reasonable?",
+            choices: [
+              "Yes, that's correct",
+              "No — it should be around 45",
+              "No — units are wrong",
+              "No — the numbers look reversed",
+            ],
+            answerIndex: 1,
+            explanation:
+              "Estimate: 10 × 4 = 40 m². Exact: 10.5 × 4.3 = 45.15 m². The calculator answer (476) is 10× too big — likely someone typed an extra zero.",
+            hint: "Estimate the answer with rounded numbers first.",
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 export function getModule(slug: string) {
