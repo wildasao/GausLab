@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { use, useMemo, useState } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import { notFound, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Container } from "@/components/ui/Container";
@@ -38,10 +38,13 @@ export default function AssessmentQuizPage({ params }: { params: Promise<{ slug:
   const [profileOverride, setProfileOverride] = useState<PersonalityProfile | null>(null);
   const profile = profileOverride ?? existingProfile;
 
-  // Advance past the personality step if a profile already exists
-  if (phase === "profile" && !profileLoading && existingProfile) {
-    setPhase("quiz");
-  }
+  // Advance past the personality step if a profile already exists.
+  // Must run in an effect — updating state during render throws in React 19.
+  useEffect(() => {
+    if (phase === "profile" && !profileLoading && existingProfile) {
+      setPhase("quiz");
+    }
+  }, [phase, profileLoading, existingProfile]);
 
   const q = questions[idx];
   const answered = q ? Boolean(answers[q.id]) : false;
