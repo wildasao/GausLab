@@ -48,6 +48,14 @@ export default function ProgressPage() {
   const firstName = activeStudent?.name.split(" ")[0] ?? "Student";
   const [strandFilter, setStrandFilter] = useState<Strand | "All">("All");
 
+  // All hooks MUST run in the same order every render — early returns after
+  // a useMemo cause React's hook state to corrupt (surfaces as 'Cannot read
+  // properties of undefined' errors in production).
+  const filteredModules = useMemo(
+    () => (strandFilter === "All" ? data.modules : data.modules.filter((m) => m.strand === strandFilter)),
+    [data.modules, strandFilter]
+  );
+
   if (data.loading) {
     return (
       <div className="grid min-h-[40vh] place-items-center">
@@ -56,10 +64,6 @@ export default function ProgressPage() {
     );
   }
 
-  const filteredModules = useMemo(
-    () => (strandFilter === "All" ? data.modules : data.modules.filter((m) => m.strand === strandFilter)),
-    [data.modules, strandFilter]
-  );
   const activeModules = filteredModules.filter((m) => m.attemptedQuestions > 0);
   const untouchedModules = filteredModules.filter((m) => m.attemptedQuestions === 0);
   const hasActivity = data.kpis.totalAttempts > 0;
