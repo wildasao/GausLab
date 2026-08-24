@@ -72,8 +72,20 @@ create table if not exists public.messages (
   unread boolean not null default false,
   initials text,
   color text default 'from-sky-500 to-sky-700',
+  direction text not null default 'inbound',
+  sender_id uuid references auth.users(id),
   sent_at timestamptz not null default now()
 );
+
+-- Migrate old tables (idempotent)
+alter table public.messages add column if not exists direction text not null default 'inbound';
+alter table public.messages add column if not exists sender_id uuid references auth.users(id);
+do $$ begin
+  alter table public.messages drop constraint if exists messages_direction_check;
+  alter table public.messages add constraint messages_direction_check
+    check (direction in ('inbound','outbound'));
+exception when others then null; end $$;
+create index if not exists messages_thread_idx on public.messages(student_id, from_name, sent_at desc);
 
 create table if not exists public.topic_mastery (
   id uuid primary key default gen_random_uuid(),
@@ -160,6 +172,25 @@ drop policy if exists "weekly_mastery via student" on public.weekly_mastery;
 create policy "lessons via student"        on public.lessons        for select using (student_id in (select id from public.students where parent_id = auth.uid()));
 create policy "homework via student"       on public.homework       for select using (student_id in (select id from public.students where parent_id = auth.uid()));
 create policy "messages via student"       on public.messages       for select using (student_id in (select id from public.students where parent_id = auth.uid()));
+
+-- Parent replies: authenticated parent may INSERT outbound messages into
+-- threads that belong to one of THEIR students. Direction locked to 'outbound'
+-- so parents can't spoof tutor messages.
+drop policy if exists "messages parent send" on public.messages;
+create policy "messages parent send" on public.messages
+  for insert to authenticated
+  with check (
+    student_id in (select id from public.students where parent_id = auth.uid())
+    and direction = 'outbound'
+    and sender_id = auth.uid()
+  );
+
+-- Parent may mark inbound messages read/unread on their student's threads.
+drop policy if exists "messages parent update" on public.messages;
+create policy "messages parent update" on public.messages
+  for update to authenticated
+  using (student_id in (select id from public.students where parent_id = auth.uid()))
+  with check (student_id in (select id from public.students where parent_id = auth.uid()));
 create policy "topic_mastery via student"  on public.topic_mastery  for select using (student_id in (select id from public.students where parent_id = auth.uid()));
 create policy "weekly_mastery via student" on public.weekly_mastery for select using (student_id in (select id from public.students where parent_id = auth.uid()));
 
