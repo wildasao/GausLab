@@ -20,6 +20,7 @@ export type QuestionVisual = {
 export type Block =
   | { kind: "theory"; title?: string; body: string }
   | { kind: "tip"; body: string }
+  | { kind: "video"; src: string; title?: string; caption?: string }
   | { kind: "example"; problem: string; steps: string[]; answer: string }
   | {
       kind: "mcq";
@@ -912,6 +913,12 @@ export const MODULES: Module[] = [
         intro: "Every 3-digit number is made of three kinds of pieces. Let's play with them.",
         phase: "concrete",
         blocks: [
+          {
+            kind: "video",
+            src: "/videos/place-value-intro.mp4",
+            title: "See it in action",
+            caption: "Watch a student build numbers with place-value blocks before you try it yourself.",
+          },
           {
             kind: "theory",
             title: "The three place values",

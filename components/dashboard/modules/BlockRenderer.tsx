@@ -2,6 +2,7 @@
 
 import type { Block } from "@/lib/modules";
 import { Theory, Tip } from "./Theory";
+import { Video } from "./Video";
 import { Example } from "./Example";
 import { McqQuestion, NumericQuestion } from "./Question";
 import { FractionBar } from "./visuals/FractionBar";
@@ -26,6 +27,8 @@ export function BlockRenderer({
       return <Theory title={block.title} body={block.body} />;
     case "tip":
       return <Tip body={block.body} />;
+    case "video":
+      return <Video src={block.src} title={block.title} caption={block.caption} />;
     case "example":
       return <Example problem={block.problem} steps={block.steps} answer={block.answer} />;
     case "mcq":
