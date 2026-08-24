@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { useDashboard } from "@/lib/dashboard-context";
 import { MODULES } from "@/lib/modules";
@@ -52,6 +52,12 @@ export default function ResourcesPage() {
   const [strand, setStrand] = useState<"All" | Resource["strand"]>("All");
   const [year, setYear] = useState<"All" | number>(activeStudent.year || "All");
   const [type, setType] = useState<"All" | ResourceType>("All");
+
+  // When the parent switches child in the top bar, snap the year filter to
+  // the new active student's year so the workspace stays scoped by default.
+  useEffect(() => {
+    if (activeStudent?.year) setYear(activeStudent.year);
+  }, [activeStudent?.year]);
 
   const filtered = useMemo(() => {
     return RESOURCES.filter((r) => {

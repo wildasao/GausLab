@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Bell, Search, Menu, ChevronDown } from "lucide-react";
 import type { Student } from "@/lib/dashboard";
 import { cn } from "@/lib/cn";
+import { AddChildDialog } from "./AddChildDialog";
+import { useRouter } from "next/navigation";
 
 export function TopBar({
   onOpenSidebar,
@@ -19,6 +21,8 @@ export function TopBar({
   onSelectStudent: (id: string) => void;
 }) {
   const [switcherOpen, setSwitcherOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const router = useRouter();
   const active = students.find((s) => s.id === activeId) ?? students[0];
   const parentInitials = (parentName || "Parent")
     .split(" ")
@@ -27,6 +31,7 @@ export function TopBar({
     .slice(0, 2)
     .toUpperCase();
   return (
+    <>
     <header className="sticky top-0 z-30 border-b border-navy-100 bg-white/85 backdrop-blur-md">
       <div className="flex items-center justify-between gap-3 px-4 py-3 lg:px-8">
         <div className="flex items-center gap-3">
@@ -110,6 +115,10 @@ export function TopBar({
                 })}
                 <button
                   type="button"
+                  onClick={() => {
+                    setSwitcherOpen(false);
+                    setAddOpen(true);
+                  }}
                   className="w-full border-t border-navy-100 px-4 py-3 text-left text-sm font-semibold text-sky-700 hover:bg-sky-50"
                 >
                   + Add another child
@@ -153,5 +162,16 @@ export function TopBar({
         </div>
       </div>
     </header>
+    {addOpen && (
+      <AddChildDialog
+        onClose={() => setAddOpen(false)}
+        onCreated={(newId) => {
+          setAddOpen(false);
+          onSelectStudent(newId);
+          router.refresh();
+        }}
+      />
+    )}
+    </>
   );
 }

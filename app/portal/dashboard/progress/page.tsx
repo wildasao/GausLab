@@ -48,13 +48,20 @@ export default function ProgressPage() {
   const firstName = activeStudent?.name.split(" ")[0] ?? "Student";
   const [strandFilter, setStrandFilter] = useState<Strand | "All">("All");
 
+  const [showAllYears, setShowAllYears] = useState(false);
+
   // All hooks MUST run in the same order every render — early returns after
   // a useMemo cause React's hook state to corrupt (surfaces as 'Cannot read
   // properties of undefined' errors in production).
-  const filteredModules = useMemo(
-    () => (strandFilter === "All" ? data.modules : data.modules.filter((m) => m.strand === strandFilter)),
-    [data.modules, strandFilter]
-  );
+  const filteredModules = useMemo(() => {
+    // Year-lock to the active student unless the parent explicitly opens 'all'
+    const yearScoped = showAllYears
+      ? data.modules
+      : data.modules.filter((m) => m.year === activeStudent?.year);
+    return strandFilter === "All"
+      ? yearScoped
+      : yearScoped.filter((m) => m.strand === strandFilter);
+  }, [data.modules, strandFilter, showAllYears, activeStudent?.year]);
 
   if (data.loading) {
     return (
@@ -232,7 +239,7 @@ export default function ProgressPage() {
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <div>
             <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-              Modules
+              Modules · {showAllYears ? "all years" : `Year ${activeStudent?.year ?? 5}`}
             </div>
             <h2 className="mt-1 font-display text-lg font-semibold text-navy-800">
               {strandFilter === "All" ? "All modules" : strandFilter}
@@ -241,9 +248,18 @@ export default function ProgressPage() {
               {activeModules.length} in progress · {untouchedModules.length} not started
             </p>
           </div>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-mist px-3 py-1 text-[11px] font-semibold text-slate-500 ring-1 ring-inset ring-navy-100">
-            <Filter className="h-3.5 w-3.5" />
-            {filteredModules.length} modules
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowAllYears((v) => !v)}
+              className="inline-flex items-center gap-1.5 rounded-full bg-mist px-3 py-1 text-[11px] font-semibold text-slate-600 ring-1 ring-inset ring-navy-100 hover:bg-white"
+            >
+              {showAllYears ? `Show ${firstName}'s year only` : "Show all years"}
+            </button>
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-mist px-3 py-1 text-[11px] font-semibold text-slate-500 ring-1 ring-inset ring-navy-100">
+              <Filter className="h-3.5 w-3.5" />
+              {filteredModules.length} modules
+            </div>
           </div>
         </div>
 
