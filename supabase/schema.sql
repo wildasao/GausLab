@@ -607,6 +607,54 @@ alter table public.project_team_members    enable row level security;
 alter table public.project_workspace_posts enable row level security;
 alter table public.project_meetings        enable row level security;
 
+-- project_teams and project_team_members each need to read the other to
+-- decide visibility, and project_team_members' own "am I on this team"
+-- check subqueries the SAME table. Direct cross-table subqueries in a
+-- USING clause make Postgres re-evaluate the referenced table's policies,
+-- which — because these two tables reference each other — creates a cycle
+-- ("infinite recursion detected in policy for relation ..."). These
+-- SECURITY DEFINER helpers break the cycle: their body runs as the
+-- (superuser) function owner, which bypasses RLS entirely, so calling them
+-- from inside a policy never re-triggers policy evaluation.
+create or replace function public.my_project_team_ids()
+returns setof uuid
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select team_id from public.project_team_members
+  where student_id in (select id from public.students where parent_id = auth.uid());
+$$;
+grant execute on function public.my_project_team_ids() to authenticated;
+
+create or replace function public.my_active_project_team_ids()
+returns setof uuid
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select m.team_id
+  from public.project_team_members m
+  join public.project_teams t on t.id = m.team_id
+  where m.status = 'approved'
+    and t.status = 'active'
+    and m.student_id in (select id from public.students where parent_id = auth.uid());
+$$;
+grant execute on function public.my_active_project_team_ids() to authenticated;
+
+create or replace function public.project_team_status(p_team_id uuid)
+returns text
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select status from public.project_teams where id = p_team_id;
+$$;
+grant execute on function public.project_team_status(uuid) to authenticated;
+
 -- Teams: visible to a parent if their student created it, or is a
 -- pending/approved member (pending so they can see what they asked to join).
 drop policy if exists "project_teams via membership" on public.project_teams;
@@ -614,10 +662,7 @@ create policy "project_teams via membership" on public.project_teams
   for select to authenticated
   using (
     created_by_student_id in (select id from public.students where parent_id = auth.uid())
-    or id in (
-      select team_id from public.project_team_members
-      where student_id in (select id from public.students where parent_id = auth.uid())
-    )
+    or id in (select public.my_project_team_ids())
   );
 
 -- A parent may start a team on behalf of their own student.
@@ -644,10 +689,7 @@ create policy "project_team_members via team" on public.project_team_members
   for select to authenticated
   using (
     student_id in (select id from public.students where parent_id = auth.uid())
-    or team_id in (
-      select m2.team_id from public.project_team_members m2
-      where m2.student_id in (select id from public.students where parent_id = auth.uid())
-    )
+    or team_id in (select public.my_project_team_ids())
   );
 
 -- Discovery: the *approved* roster of a still-'forming' team is visible to
@@ -659,7 +701,7 @@ create policy "project_team_members browse forming roster" on public.project_tea
   for select to authenticated
   using (
     status = 'approved'
-    and team_id in (select id from public.project_teams where status = 'forming')
+    and public.project_team_status(team_id) = 'forming'
   );
 
 -- A parent may request THEIR OWN student to join a team (starts 'pending').
@@ -688,59 +730,27 @@ create policy "project_team_members decide own child" on public.project_team_mem
 drop policy if exists "project_workspace_posts via active team" on public.project_workspace_posts;
 create policy "project_workspace_posts via active team" on public.project_workspace_posts
   for select to authenticated
-  using (
-    exists (
-      select 1 from public.project_team_members m
-      join public.project_teams t on t.id = m.team_id
-      where m.team_id = project_workspace_posts.team_id
-        and m.student_id in (select id from public.students where parent_id = auth.uid())
-        and m.status = 'approved'
-        and t.status = 'active'
-    )
-  );
+  using (team_id in (select public.my_active_project_team_ids()));
 
 drop policy if exists "project_workspace_posts post as own child" on public.project_workspace_posts;
 create policy "project_workspace_posts post as own child" on public.project_workspace_posts
   for insert to authenticated
   with check (
     student_id in (select id from public.students where parent_id = auth.uid())
-    and exists (
-      select 1 from public.project_team_members m
-      join public.project_teams t on t.id = m.team_id
-      where m.team_id = project_workspace_posts.team_id
-        and m.student_id = project_workspace_posts.student_id
-        and m.status = 'approved'
-        and t.status = 'active'
-    )
+    and team_id in (select public.my_active_project_team_ids())
   );
 
 drop policy if exists "project_meetings via active team" on public.project_meetings;
 create policy "project_meetings via active team" on public.project_meetings
   for select to authenticated
-  using (
-    exists (
-      select 1 from public.project_team_members m
-      join public.project_teams t on t.id = m.team_id
-      where m.team_id = project_meetings.team_id
-        and m.student_id in (select id from public.students where parent_id = auth.uid())
-        and m.status = 'approved'
-        and t.status = 'active'
-    )
-  );
+  using (team_id in (select public.my_active_project_team_ids()));
 
 drop policy if exists "project_meetings create in active team" on public.project_meetings;
 create policy "project_meetings create in active team" on public.project_meetings
   for insert to authenticated
   with check (
     created_by_student_id in (select id from public.students where parent_id = auth.uid())
-    and exists (
-      select 1 from public.project_team_members m
-      join public.project_teams t on t.id = m.team_id
-      where m.team_id = project_meetings.team_id
-        and m.student_id = project_meetings.created_by_student_id
-        and m.status = 'approved'
-        and t.status = 'active'
-    )
+    and team_id in (select public.my_active_project_team_ids())
   );
 
 -- Auto-add the team's creator as its first, already-approved member
