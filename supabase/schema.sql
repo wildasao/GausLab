@@ -504,3 +504,304 @@ values
   (7, 'Number & Algebra', 'Linear equations','medium','numeric', 'Solve for x: 5x + 2 = 32',                            null,                            null, 6, null, '5x = 30 → x = 6.',                         'Subtract 2 first, then divide by 5.',          null,                    null,                                                          'gauslab', array['algebra','equations']),
   (9, 'Measurement & Geometry','Pythagoras','medium','numeric', 'Legs are 5 and 12. Find the hypotenuse.',              null,                            null, 13, 'cm', '5² + 12² = 169 → √169 = 13.',              'Square each leg, add them, then square-root.', 'pythagoras',            '{"a":5,"b":12}'::jsonb,                                       'gauslab', array['pythagoras'])
 on conflict do nothing;
+
+-- =====================================================================
+-- PROJECTS
+-- Cross-family student teams tackling a real-life maths challenge tied to
+-- a year/module, with in-app team workspace + video meetings.
+--
+-- Child-safety boundary: a student can only be added to a team once THEIR
+-- OWN parent approves (see "project_team_members decide own child" below).
+-- One parent can never approve another family's child into a team. A team
+-- only becomes 'active' (workspace + meetings unlocked) once every member
+-- is approved — enforced by project_team_maybe_activate() below, not by
+-- the client.
+-- =====================================================================
+
+create table if not exists public.project_challenges (
+  id          uuid primary key default gen_random_uuid(),
+  module_slug text,                     -- optional link to a MODULES[].slug in lib/modules.ts
+  year        int not null check (year in (3,5,7,9,4,6,8,10)),
+  title       text not null,
+  summary     text not null,            -- short teaser shown on the catalogue card
+  brief       text not null,            -- the full "apply this to real life" challenge prompt
+  deliverable text,                     -- what a team should produce/submit
+  difficulty  text not null default 'medium' check (difficulty in ('easy','medium','hard')),
+  active      boolean not null default true,
+  created_at  timestamptz not null default now()
+);
+
+create index if not exists project_challenges_year_idx on public.project_challenges(year, active);
+
+alter table public.project_challenges enable row level security;
+
+drop policy if exists "project_challenges read all" on public.project_challenges;
+create policy "project_challenges read all" on public.project_challenges
+  for select to authenticated using (active = true);
+
+drop policy if exists "project_challenges admin write" on public.project_challenges;
+create policy "project_challenges admin write" on public.project_challenges
+  for all to authenticated
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'))
+  with check (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
+
+create table if not exists public.project_teams (
+  id                     uuid primary key default gen_random_uuid(),
+  challenge_id           uuid not null references public.project_challenges(id) on delete cascade,
+  name                   text not null,
+  status                 text not null default 'forming' check (status in ('forming','active','completed')),
+  created_by_student_id  uuid not null references public.students(id) on delete cascade,
+  created_at             timestamptz not null default now()
+);
+
+create index if not exists project_teams_challenge_idx on public.project_teams(challenge_id);
+
+-- student_display_name/avatar are denormalized copies (first-name only,
+-- by convention) supplied by the requesting student's own parent at insert
+-- time. This is deliberate: public.students RLS only lets a parent read
+-- THEIR OWN children (full academic record — bands, mastery, next lesson),
+-- so a teammate from another family must never be joined in from
+-- public.students directly. These two columns are the only teammate info
+-- exposed cross-family.
+create table if not exists public.project_team_members (
+  id                     uuid primary key default gen_random_uuid(),
+  team_id                uuid not null references public.project_teams(id) on delete cascade,
+  student_id             uuid not null references public.students(id) on delete cascade,
+  student_display_name   text not null,
+  student_avatar_gradient text default 'from-sky-500 to-sky-700',
+  status       text not null default 'pending' check (status in ('pending','approved','removed')),
+  approved_by  uuid references auth.users(id),   -- must be the approved student's own parent
+  requested_at timestamptz not null default now(),
+  decided_at   timestamptz,
+  unique (team_id, student_id)
+);
+
+create index if not exists project_team_members_team_idx    on public.project_team_members(team_id);
+create index if not exists project_team_members_student_idx on public.project_team_members(student_id);
+
+create table if not exists public.project_workspace_posts (
+  id         uuid primary key default gen_random_uuid(),
+  team_id    uuid not null references public.project_teams(id) on delete cascade,
+  student_id uuid not null references public.students(id) on delete cascade,
+  body       text not null,
+  link_url   text,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists project_workspace_posts_team_idx on public.project_workspace_posts(team_id, created_at);
+
+create table if not exists public.project_meetings (
+  id                     uuid primary key default gen_random_uuid(),
+  team_id                uuid not null references public.project_teams(id) on delete cascade,
+  room_name              text not null unique,
+  scheduled_at           timestamptz not null default now(),
+  status                 text not null default 'scheduled' check (status in ('scheduled','live','ended')),
+  created_by_student_id  uuid not null references public.students(id) on delete cascade,
+  created_at             timestamptz not null default now()
+);
+
+create index if not exists project_meetings_team_idx on public.project_meetings(team_id);
+
+alter table public.project_teams           enable row level security;
+alter table public.project_team_members    enable row level security;
+alter table public.project_workspace_posts enable row level security;
+alter table public.project_meetings        enable row level security;
+
+-- Teams: visible to a parent if their student created it, or is a
+-- pending/approved member (pending so they can see what they asked to join).
+drop policy if exists "project_teams via membership" on public.project_teams;
+create policy "project_teams via membership" on public.project_teams
+  for select to authenticated
+  using (
+    created_by_student_id in (select id from public.students where parent_id = auth.uid())
+    or id in (
+      select team_id from public.project_team_members
+      where student_id in (select id from public.students where parent_id = auth.uid())
+    )
+  );
+
+-- A parent may start a team on behalf of their own student.
+drop policy if exists "project_teams parent create" on public.project_teams;
+create policy "project_teams parent create" on public.project_teams
+  for insert to authenticated
+  with check (created_by_student_id in (select id from public.students where parent_id = auth.uid()));
+
+-- Discovery: any signed-in parent can browse teams still 'forming' for a
+-- challenge, so their student has something to request to join. Team name
+-- only — no student identities are exposed by this policy alone.
+drop policy if exists "project_teams discover forming" on public.project_teams;
+create policy "project_teams discover forming" on public.project_teams
+  for select to authenticated using (status = 'forming');
+
+-- Status transitions ('forming' -> 'active'/'completed') happen only via
+-- project_team_maybe_activate() (security definer) below — no direct
+-- client update policy is granted on project_teams.
+
+-- Team members: a parent can see membership rows for any team their own
+-- student belongs to (pending or approved), so they can see teammates.
+drop policy if exists "project_team_members via team" on public.project_team_members;
+create policy "project_team_members via team" on public.project_team_members
+  for select to authenticated
+  using (
+    student_id in (select id from public.students where parent_id = auth.uid())
+    or team_id in (
+      select m2.team_id from public.project_team_members m2
+      where m2.student_id in (select id from public.students where parent_id = auth.uid())
+    )
+  );
+
+-- Discovery: the *approved* roster of a still-'forming' team is visible to
+-- any signed-in parent, so a family can see who they'd be teaming up with
+-- before requesting to join. Other families' *pending* requests stay
+-- private until you're a member of that same team.
+drop policy if exists "project_team_members browse forming roster" on public.project_team_members;
+create policy "project_team_members browse forming roster" on public.project_team_members
+  for select to authenticated
+  using (
+    status = 'approved'
+    and team_id in (select id from public.project_teams where status = 'forming')
+  );
+
+-- A parent may request THEIR OWN student to join a team (starts 'pending').
+drop policy if exists "project_team_members request join" on public.project_team_members;
+create policy "project_team_members request join" on public.project_team_members
+  for insert to authenticated
+  with check (
+    student_id in (select id from public.students where parent_id = auth.uid())
+    and status = 'pending'
+  );
+
+-- Core child-safety boundary: a parent may approve/remove ONLY their own
+-- student's membership row — never another family's child.
+drop policy if exists "project_team_members decide own child" on public.project_team_members;
+create policy "project_team_members decide own child" on public.project_team_members
+  for update to authenticated
+  using (student_id in (select id from public.students where parent_id = auth.uid()))
+  with check (
+    student_id in (select id from public.students where parent_id = auth.uid())
+    and status in ('approved','removed')
+    and approved_by = auth.uid()
+  );
+
+-- Workspace + meetings only unlock once the team is fully 'active'
+-- (every member approved) — checked server-side via RLS, not just in the UI.
+drop policy if exists "project_workspace_posts via active team" on public.project_workspace_posts;
+create policy "project_workspace_posts via active team" on public.project_workspace_posts
+  for select to authenticated
+  using (
+    exists (
+      select 1 from public.project_team_members m
+      join public.project_teams t on t.id = m.team_id
+      where m.team_id = project_workspace_posts.team_id
+        and m.student_id in (select id from public.students where parent_id = auth.uid())
+        and m.status = 'approved'
+        and t.status = 'active'
+    )
+  );
+
+drop policy if exists "project_workspace_posts post as own child" on public.project_workspace_posts;
+create policy "project_workspace_posts post as own child" on public.project_workspace_posts
+  for insert to authenticated
+  with check (
+    student_id in (select id from public.students where parent_id = auth.uid())
+    and exists (
+      select 1 from public.project_team_members m
+      join public.project_teams t on t.id = m.team_id
+      where m.team_id = project_workspace_posts.team_id
+        and m.student_id = project_workspace_posts.student_id
+        and m.status = 'approved'
+        and t.status = 'active'
+    )
+  );
+
+drop policy if exists "project_meetings via active team" on public.project_meetings;
+create policy "project_meetings via active team" on public.project_meetings
+  for select to authenticated
+  using (
+    exists (
+      select 1 from public.project_team_members m
+      join public.project_teams t on t.id = m.team_id
+      where m.team_id = project_meetings.team_id
+        and m.student_id in (select id from public.students where parent_id = auth.uid())
+        and m.status = 'approved'
+        and t.status = 'active'
+    )
+  );
+
+drop policy if exists "project_meetings create in active team" on public.project_meetings;
+create policy "project_meetings create in active team" on public.project_meetings
+  for insert to authenticated
+  with check (
+    created_by_student_id in (select id from public.students where parent_id = auth.uid())
+    and exists (
+      select 1 from public.project_team_members m
+      join public.project_teams t on t.id = m.team_id
+      where m.team_id = project_meetings.team_id
+        and m.student_id = project_meetings.created_by_student_id
+        and m.status = 'approved'
+        and t.status = 'active'
+    )
+  );
+
+-- Auto-add the team's creator as its first, already-approved member
+-- (their own parent just created the team, so consent is implicit).
+create or replace function public.project_team_add_creator()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  creator_name text;
+  creator_gradient text;
+begin
+  select name, avatar_gradient into creator_name, creator_gradient
+  from public.students where id = new.created_by_student_id;
+
+  insert into public.project_team_members
+    (team_id, student_id, student_display_name, student_avatar_gradient, status, approved_by, decided_at)
+  values
+    (new.id, new.created_by_student_id, coalesce(creator_name, 'Student'), creator_gradient, 'approved', auth.uid(), now())
+  on conflict (team_id, student_id) do nothing;
+  return new;
+end;
+$$;
+
+drop trigger if exists project_teams_add_creator on public.project_teams;
+create trigger project_teams_add_creator
+  after insert on public.project_teams
+  for each row execute function public.project_team_add_creator();
+
+-- Flip a team to 'active' the moment every (non-removed) member is approved.
+create or replace function public.project_team_maybe_activate()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  total    int;
+  approved int;
+begin
+  select count(*) into total    from public.project_team_members where team_id = new.team_id and status <> 'removed';
+  select count(*) into approved from public.project_team_members where team_id = new.team_id and status = 'approved';
+  if total >= 2 and total = approved then
+    update public.project_teams set status = 'active' where id = new.team_id and status = 'forming';
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists project_team_members_maybe_activate on public.project_team_members;
+create trigger project_team_members_maybe_activate
+  after insert or update on public.project_team_members
+  for each row execute function public.project_team_maybe_activate();
+
+-- Seed a couple of starter challenges so /projects has content out of the box
+insert into public.project_challenges (year, title, summary, brief, deliverable, difficulty)
+values
+  (3, 'Plan a Class Picnic Budget', 'Use place value and addition to plan a picnic for 20 people under a $50 budget.', 'Your team is organising a picnic for 20 classmates. Snacks cost different amounts per pack, and each pack feeds a set number of people. Work out how many packs of each snack to buy, add up the total cost, and make sure you stay under $50 — with as little food wasted as possible.', 'A shopping list with quantities and a total cost under $50, plus a one-paragraph explanation of your choices.', 'easy'),
+  (5, 'Design a Fair Raffle', 'Apply fractions and probability to design a raffle that feels fair to every ticket buyer.', 'Your school fete is running a raffle with 3 prizes. Decide how many tickets to sell, how much each ticket costs, and how prizes are drawn, so the chance of winning is clear and fair. Explain the probability of winning at least one prize if someone buys 5 tickets.', 'A one-page raffle plan with the probability calculations shown.', 'medium'),
+  (7, 'Model a Phone Plan', 'Use linear equations to compare real phone/data plans and recommend the best value one.', 'Find (or invent, using realistic numbers) three phone plans with different monthly fees and per-GB data costs. Write an equation for the total monthly cost of each plan based on data used, and recommend which plan is best for someone who uses about 6GB a month — showing your working.', 'A short comparison with one equation per plan and a written recommendation.', 'medium'),
+  (9, 'Survey Your Street (Pythagoras)', 'Use Pythagoras'' theorem to measure a real diagonal distance you can''t measure directly.', 'Pick a real rectangular space near you (a room, a park, a court) where you can measure two sides but not the diagonal directly. Measure the two sides, calculate the diagonal using Pythagoras'' theorem, and describe how you would check your answer in real life.', 'Your two measurements, the calculated diagonal, and a short write-up with a diagram.', 'hard')
+on conflict do nothing;

@@ -10,6 +10,7 @@ import {
   ClipboardList,
   CalendarDays,
   MessageSquare,
+  Users,
   FolderDown,
   Sparkles,
   Settings,
@@ -30,6 +31,7 @@ const primary = [
   { label: "Lessons", href: "/portal/dashboard/lessons", icon: CalendarDays },
   { label: "Messages", href: "/portal/dashboard/messages", icon: MessageSquare, badge: 1 },
   { label: "Modules", href: "/portal/dashboard/modules", icon: GraduationCap, pro: true },
+  { label: "Projects", href: "/portal/dashboard/projects", icon: Users },
   { label: "Resources", href: "/portal/dashboard/resources", icon: FolderDown },
   { label: "AI tutor", href: "/portal/dashboard/ai", icon: Sparkles, pro: true },
 ];
