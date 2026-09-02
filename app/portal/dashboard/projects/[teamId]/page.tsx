@@ -9,16 +9,121 @@ import {
   useWorkspacePosts,
   decideOwnChildMembership,
   postToWorkspace,
+  submitProjectReport,
   type ProjectTeamMember,
+  type ReportReason,
 } from "@/lib/projects";
-import { ArrowLeft, Check, X, Send, Lock } from "lucide-react";
+import { ArrowLeft, Check, X, Send, Lock, Flag } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 const teamStatusStyle: Record<string, string> = {
   forming: "bg-amber-50 text-amber-700 ring-amber-200",
   active: "bg-emerald-50 text-emerald-700 ring-emerald-200",
   completed: "bg-navy-50 text-navy-700 ring-navy-200",
+  suspended: "bg-rose-50 text-rose-700 ring-rose-200",
 };
+
+const REPORT_REASONS: { value: ReportReason; label: string }[] = [
+  { value: "inappropriate_content", label: "Inappropriate content" },
+  { value: "harassment", label: "Harassment or bullying" },
+  { value: "safety_concern", label: "Safety concern" },
+  { value: "spam", label: "Spam" },
+  { value: "other", label: "Other" },
+];
+
+function ReportModal({
+  onClose,
+  onSubmit,
+}: {
+  onClose: () => void;
+  onSubmit: (reason: ReportReason, details: string) => Promise<{ ok: boolean; error?: string }>;
+}) {
+  const [reason, setReason] = useState<ReportReason>("safety_concern");
+  const [details, setDetails] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState(false);
+
+  async function onSubmitForm(e: React.FormEvent) {
+    e.preventDefault();
+    setSubmitting(true);
+    setError(null);
+    const res = await onSubmit(reason, details.trim());
+    setSubmitting(false);
+    if (!res.ok) {
+      setError(res.error ?? "Something went wrong.");
+      return;
+    }
+    setDone(true);
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-navy-900/40 p-4" role="dialog" aria-modal="true">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-soft">
+        <div className="flex items-start justify-between gap-4">
+          <h3 className="font-display text-lg font-semibold text-navy-800">Report a concern</h3>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-slate-400 hover:bg-mist hover:text-navy-700"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {done ? (
+          <p className="mt-4 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-700 ring-1 ring-inset ring-emerald-200">
+            Thanks — a GausLab admin will review this shortly.
+          </p>
+        ) : (
+          <form onSubmit={onSubmitForm} className="mt-4 space-y-3">
+            <div>
+              <label htmlFor="report-reason" className="mb-1 block text-xs font-semibold text-navy-700">
+                Reason
+              </label>
+              <select
+                id="report-reason"
+                value={reason}
+                onChange={(e) => setReason(e.target.value as ReportReason)}
+                className="w-full rounded-xl bg-mist px-3 py-2.5 text-sm ring-1 ring-inset ring-navy-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+              >
+                {REPORT_REASONS.map((r) => (
+                  <option key={r.value} value={r.value}>
+                    {r.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="report-details" className="mb-1 block text-xs font-semibold text-navy-700">
+                Details (optional)
+              </label>
+              <textarea
+                id="report-details"
+                value={details}
+                onChange={(e) => setDetails(e.target.value)}
+                rows={3}
+                className="w-full rounded-xl bg-mist px-3 py-2.5 text-sm ring-1 ring-inset ring-navy-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+              />
+            </div>
+            {error && (
+              <div className="rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-700 ring-1 ring-inset ring-rose-200" role="alert">
+                {error}
+              </div>
+            )}
+            <button
+              type="submit"
+              disabled={submitting}
+              className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-50"
+            >
+              {submitting ? "Sending…" : "Submit report"}
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function MemberRow({
   member,
@@ -78,12 +183,25 @@ export default function ProjectTeamPage({ params }: { params: Promise<{ teamId: 
   const [draft, setDraft] = useState("");
   const [posting, setPosting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [reporting, setReporting] = useState<{ postId?: string } | null>(null);
 
   const ownStudentIds = new Set(students.map((s) => s.id));
 
   async function onDecide(memberRowId: string, decision: "approved" | "removed") {
     const res = await decideOwnChildMembership({ memberRowId, decision });
     if (res.ok) await refresh();
+  }
+
+  async function onSubmitReport(reason: ReportReason, details: string) {
+    if (!team) return { ok: false, error: "No team." };
+    const res = await submitProjectReport({
+      teamId: team.id,
+      postId: reporting?.postId,
+      reporterStudentId: activeStudent.id,
+      reason,
+      details: details || undefined,
+    });
+    return res.ok ? { ok: true } : { ok: false, error: res.error };
   }
 
   async function onSubmitPost(e: React.FormEvent) {
@@ -138,9 +256,17 @@ export default function ProjectTeamPage({ params }: { params: Promise<{ teamId: 
             : "Waiting on every member's own parent to approve before the workspace unlocks."
         }
         actions={
-          <span className={cn("rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset", teamStatusStyle[team.status])}>
-            {team.status}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className={cn("rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset", teamStatusStyle[team.status])}>
+              {team.status}
+            </span>
+            <button
+              onClick={() => setReporting({})}
+              className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-rose-600 ring-1 ring-rose-200 hover:bg-rose-50"
+            >
+              <Flag className="h-3.5 w-3.5" /> Report
+            </button>
+          </div>
         }
       />
 
@@ -179,12 +305,21 @@ export default function ProjectTeamPage({ params }: { params: Promise<{ teamId: 
                 {posts.map((p) => {
                   const author = team.members.find((m) => m.studentId === p.studentId);
                   return (
-                    <div key={p.id} className="rounded-xl bg-mist p-3">
-                      <div className="flex items-center gap-2 text-xs font-semibold text-navy-700">
-                        {author?.displayName ?? "Teammate"}
-                        <span className="font-normal text-slate-400">
-                          {new Date(p.createdAt).toLocaleString("en-AU", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}
-                        </span>
+                    <div key={p.id} className="group rounded-xl bg-mist p-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 text-xs font-semibold text-navy-700">
+                          {author?.displayName ?? "Teammate"}
+                          <span className="font-normal text-slate-400">
+                            {new Date(p.createdAt).toLocaleString("en-AU", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => setReporting({ postId: p.id })}
+                          aria-label="Report this post"
+                          className="text-slate-300 opacity-0 hover:text-rose-600 group-hover:opacity-100"
+                        >
+                          <Flag className="h-3.5 w-3.5" />
+                        </button>
                       </div>
                       <p className="mt-1 whitespace-pre-line text-sm text-navy-800">{p.body}</p>
                       {p.linkUrl && (
@@ -221,6 +356,10 @@ export default function ProjectTeamPage({ params }: { params: Promise<{ teamId: 
           )}
         </section>
       </div>
+
+      {reporting && (
+        <ReportModal onClose={() => setReporting(null)} onSubmit={onSubmitReport} />
+      )}
     </>
   );
 }

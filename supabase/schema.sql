@@ -797,6 +797,96 @@ create trigger project_team_members_maybe_activate
   after insert or update on public.project_team_members
   for each row execute function public.project_team_maybe_activate();
 
+-- =====================================================================
+-- PROJECT MODERATION
+-- Lightweight safety reporting for cross-family Projects, plus the admin
+-- read/override access needed to triage it. Reporting is deliberately easy
+-- (any parent, about their own student, no team-status prerequisite) —
+-- moderation should never be gated behind team membership state.
+-- =====================================================================
+
+do $$ begin
+  alter table public.project_teams drop constraint if exists project_teams_status_check;
+  alter table public.project_teams add constraint project_teams_status_check
+    check (status in ('forming','active','completed','suspended'));
+exception when others then null; end $$;
+
+create table if not exists public.project_reports (
+  id                  uuid primary key default gen_random_uuid(),
+  team_id             uuid not null references public.project_teams(id) on delete cascade,
+  post_id             uuid references public.project_workspace_posts(id) on delete set null,
+  reporter_student_id uuid not null references public.students(id) on delete cascade,
+  reported_by         uuid not null references auth.users(id),
+  reason              text not null check (reason in ('inappropriate_content','harassment','safety_concern','spam','other')),
+  details             text,
+  status              text not null default 'open' check (status in ('open','reviewed','dismissed')),
+  created_at          timestamptz not null default now()
+);
+
+create index if not exists project_reports_team_idx   on public.project_reports(team_id, created_at desc);
+create index if not exists project_reports_status_idx on public.project_reports(status, created_at desc);
+
+alter table public.project_reports enable row level security;
+
+-- Any parent may report a team/post on behalf of their own student — never
+-- gated by team status, so a concern can be raised even from a 'forming'
+-- team before the workspace unlocks.
+drop policy if exists "project_reports insert own child" on public.project_reports;
+create policy "project_reports insert own child" on public.project_reports
+  for insert to authenticated
+  with check (
+    reporter_student_id in (select id from public.students where parent_id = auth.uid())
+    and reported_by = auth.uid()
+  );
+
+drop policy if exists "project_reports read own" on public.project_reports;
+create policy "project_reports read own" on public.project_reports
+  for select to authenticated
+  using (reported_by = auth.uid());
+
+drop policy if exists "project_reports admin read" on public.project_reports;
+create policy "project_reports admin read" on public.project_reports
+  for select to authenticated
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
+
+drop policy if exists "project_reports admin triage" on public.project_reports;
+create policy "project_reports admin triage" on public.project_reports
+  for update to authenticated
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'))
+  with check (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
+
+-- Admin visibility across ALL teams/rosters/posts, for triage — parents
+-- otherwise only see teams their own student is connected to.
+drop policy if exists "project_teams admin read" on public.project_teams;
+create policy "project_teams admin read" on public.project_teams
+  for select to authenticated
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
+
+drop policy if exists "project_team_members admin read" on public.project_team_members;
+create policy "project_team_members admin read" on public.project_team_members
+  for select to authenticated
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
+
+drop policy if exists "project_workspace_posts admin read" on public.project_workspace_posts;
+create policy "project_workspace_posts admin read" on public.project_workspace_posts
+  for select to authenticated
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
+
+-- Admin override: suspend/reinstate a team (status), or remove a specific
+-- member — independent of that member's own parent. This is the escalation
+-- path when a report is confirmed.
+drop policy if exists "project_teams admin moderate" on public.project_teams;
+create policy "project_teams admin moderate" on public.project_teams
+  for update to authenticated
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'))
+  with check (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
+
+drop policy if exists "project_team_members admin moderate" on public.project_team_members;
+create policy "project_team_members admin moderate" on public.project_team_members
+  for update to authenticated
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'))
+  with check (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
+
 -- Seed a couple of starter challenges so /projects has content out of the box
 insert into public.project_challenges (year, title, summary, brief, deliverable, difficulty)
 values

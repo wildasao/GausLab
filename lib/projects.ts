@@ -30,11 +30,13 @@ export type ProjectTeam = {
   id: string;
   challengeId: string;
   name: string;
-  status: "forming" | "active" | "completed";
+  status: "forming" | "active" | "completed" | "suspended";
   createdByStudentId: string;
   createdAt: string;
   members: ProjectTeamMember[];
 };
+
+export type ReportReason = "inappropriate_content" | "harassment" | "safety_concern" | "spam" | "other";
 
 export type WorkspacePost = {
   id: string;
@@ -382,6 +384,32 @@ export async function postToWorkspace(input: {
     student_id: input.studentId,
     body: input.body,
     link_url: input.linkUrl ?? null,
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
+/** Any parent can flag a team (or one post in it) for admin review, on behalf of their own student. */
+export async function submitProjectReport(input: {
+  teamId: string;
+  postId?: string;
+  reporterStudentId: string;
+  reason: ReportReason;
+  details?: string;
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+  const supabase = getSupabaseBrowser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Sign in to report." };
+
+  const { error } = await supabase.from("project_reports").insert({
+    team_id: input.teamId,
+    post_id: input.postId ?? null,
+    reporter_student_id: input.reporterStudentId,
+    reported_by: user.id,
+    reason: input.reason,
+    details: input.details ?? null,
   });
   if (error) return { ok: false, error: error.message };
   return { ok: true };

@@ -19,6 +19,7 @@ import {
   GraduationCap,
   Inbox,
   Gauge,
+  ShieldAlert,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { useIsAdmin } from "@/lib/enquiries";
@@ -86,6 +87,24 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             <span className="flex-1">Enquiries</span>
             <span className="rounded-full bg-orange-500/30 px-2 py-0.5 text-[10px] font-semibold text-orange-100 ring-1 ring-inset ring-orange-400/40">
               CRM
+            </span>
+          </Link>
+        )}
+        {isAdmin && (
+          <Link
+            href="/portal/dashboard/admin/projects"
+            onClick={onNavigate}
+            className={cn(
+              "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+              pathname.startsWith("/portal/dashboard/admin/projects")
+                ? "bg-orange-500/15 text-white ring-1 ring-inset ring-orange-400/40"
+                : "text-orange-300 hover:bg-white/5"
+            )}
+          >
+            <ShieldAlert className="h-4 w-4" />
+            <span className="flex-1">Project moderation</span>
+            <span className="rounded-full bg-orange-500/30 px-2 py-0.5 text-[10px] font-semibold text-orange-100 ring-1 ring-inset ring-orange-400/40">
+              Mod
             </span>
           </Link>
         )}
